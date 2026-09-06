@@ -1,0 +1,15 @@
+apiVersion: 1
+
+apps:
+  - type: 'debeka-vmware-app'
+    org_id: 1
+    org_name: 'debeka'
+    disabled: false
+    jsonData:
+      prometheusUid: thanos-vmware-demo
+  # Grafana's own AI assistant app, enabled alongside this app so operators
+  # can ask it questions about the vSphere metrics shown on these pages.
+  - type: 'grafana-assistant-app'
+    org_id: 1
+    org_name: 'debeka'
+    disabled: false

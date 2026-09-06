@@ -1,0 +1,22 @@
+name: debeka-vmware-app-demo
+
+networks:
+  demo:
+    name: debeka-vmware-app-demo
+
+services:
+  prometheus:
+    image: docker.io/prom/prometheus:v3.0.1
+    container_name: prometheus
+    networks: [demo]
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./demo/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  vmware-metrics-demo:
+    image: docker.io/library/nginx:1.27-alpine
+    container_name: vmware-metrics-demo
+    networks: [demo]
+    volumes:
+      - ./demo/vmware-metrics/metrics:/usr/share/nginx/html/metrics:ro

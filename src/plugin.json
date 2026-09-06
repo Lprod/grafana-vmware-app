@@ -1,0 +1,64 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "app",
+  "name": "VMware",
+  "id": "debeka-vmware-app",
+  "info": {
+    "keywords": ["app"],
+    "description": "Observability for VMware vSphere",
+    "author": {
+      "name": "Debeka"
+    },
+    "logos": {
+      "small": "img/vmware.svg",
+      "large": "img/vmware.svg"
+    },
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "includes": [
+    {
+      "type": "page",
+      "name": "Search",
+      "path": "/a/%PLUGIN_ID%/search",
+      "addToNav": true
+    },
+    {
+      "type": "page",
+      "name": "Overview",
+      "path": "/a/%PLUGIN_ID%/overview",
+      "addToNav": true
+    },
+    {
+      "type": "page",
+      "name": "Clusters",
+      "path": "/a/%PLUGIN_ID%/clusters",
+      "addToNav": true
+    },
+    {
+      "type": "page",
+      "name": "Hosts",
+      "path": "/a/%PLUGIN_ID%/hosts",
+      "addToNav": true
+    },
+    {
+      "type": "page",
+      "name": "Virtual Machines",
+      "path": "/a/%PLUGIN_ID%/vms",
+      "addToNav": true
+    },
+    {
+      "type": "page",
+      "icon": "cog",
+      "name": "Configuration",
+      "path": "/plugins/%PLUGIN_ID%",
+      "role": "Admin",
+      "addToNav": true
+    }
+  ],
+  "dependencies": {
+    "grafanaDependency": ">=12.3.0",
+    "plugins": []
+  }
+}

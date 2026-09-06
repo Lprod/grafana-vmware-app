@@ -1,0 +1,304 @@
+# HELP vsphere_host_cpu_coreUtilization_average Core utilization percentage (used for label discovery).
+# TYPE vsphere_host_cpu_coreUtilization_average gauge
+vsphere_host_cpu_coreUtilization_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com"} 55.17
+vsphere_host_cpu_coreUtilization_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com"} 35.13
+vsphere_host_cpu_coreUtilization_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com"} 60.51
+vsphere_host_cpu_coreUtilization_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com"} 69.07
+
+# HELP vsphere_host_cpu_totalCapacity_average Total CPU capacity in MHz.
+# TYPE vsphere_host_cpu_totalCapacity_average gauge
+vsphere_host_cpu_totalCapacity_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com"} 38400
+vsphere_host_cpu_totalCapacity_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com"} 38400
+vsphere_host_cpu_totalCapacity_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com"} 38400
+vsphere_host_cpu_totalCapacity_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com"} 38400
+
+# HELP vsphere_host_cpu_usage_average CPU usage percentage.
+# TYPE vsphere_host_cpu_usage_average gauge
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",cpu="instance-total"} 55.17
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",cpu="instance-total"} 35.13
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",cpu="instance-total"} 60.51
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",cpu="instance-total"} 69.07
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",cpu="0"} 54.39
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",cpu="1"} 50.47
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",cpu="0"} 32.31
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",cpu="1"} 35.18
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",cpu="0"} 55.77
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",cpu="1"} 57.49
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",cpu="0"} 70.57
+vsphere_host_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",cpu="1"} 69.52
+
+# HELP vsphere_host_cpu_usagemhz_average CPU usage in MHz.
+# TYPE vsphere_host_cpu_usagemhz_average gauge
+vsphere_host_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com"} 21185
+vsphere_host_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com"} 13489
+vsphere_host_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com"} 23234
+vsphere_host_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com"} 26523
+
+# HELP vsphere_host_cpu_readiness_average CPU readiness percentage.
+# TYPE vsphere_host_cpu_readiness_average gauge
+vsphere_host_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com"} 0.74
+vsphere_host_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com"} 1.81
+vsphere_host_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com"} 2.45
+vsphere_host_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com"} 0.12
+
+# HELP vsphere_host_cpu_ready_summation CPU ready time in ms.
+# TYPE vsphere_host_cpu_ready_summation counter
+vsphere_host_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com"} 244
+vsphere_host_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com"} 212
+vsphere_host_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com"} 109
+vsphere_host_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com"} 55
+
+# HELP vsphere_host_mem_usage_average Memory usage percentage.
+# TYPE vsphere_host_mem_usage_average gauge
+vsphere_host_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com"} 31.25
+vsphere_host_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com"} 41.16
+vsphere_host_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com"} 63.83
+vsphere_host_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com"} 34.35
+
+# HELP vsphere_host_mem_totalCapacity_average Total memory capacity in MB.
+# TYPE vsphere_host_mem_totalCapacity_average gauge
+vsphere_host_mem_totalCapacity_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com"} 262144
+vsphere_host_mem_totalCapacity_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com"} 262144
+vsphere_host_mem_totalCapacity_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com"} 262144
+vsphere_host_mem_totalCapacity_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com"} 262144
+
+# HELP vsphere_host_sys_uptime_latest System uptime in seconds.
+# TYPE vsphere_host_sys_uptime_latest gauge
+vsphere_host_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com"} 4147200
+vsphere_host_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com"} 1555200
+vsphere_host_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com"} 1382400
+vsphere_host_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com"} 4579200
+
+# HELP vsphere_host_net_usage_average Network usage in KBps.
+# TYPE vsphere_host_net_usage_average gauge
+vsphere_host_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com"} 935
+vsphere_host_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com"} 4314
+vsphere_host_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com"} 3217
+vsphere_host_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com"} 4132
+
+# HELP vsphere_host_net_bytesRx_average Network bytes received.
+# TYPE vsphere_host_net_bytesRx_average gauge
+vsphere_host_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",interface="vmnic0"} 36757
+vsphere_host_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",interface="vmnic0"} 27275
+vsphere_host_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",interface="vmnic0"} 48683
+vsphere_host_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",interface="vmnic0"} 19548
+
+# HELP vsphere_host_net_bytesTx_average Network bytes transmitted.
+# TYPE vsphere_host_net_bytesTx_average gauge
+vsphere_host_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",interface="vmnic0"} 28050
+vsphere_host_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",interface="vmnic0"} 41641
+vsphere_host_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",interface="vmnic0"} 31307
+vsphere_host_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",interface="vmnic0"} 43224
+
+# HELP vsphere_host_storageAdapter_numberReadAveraged_average Storage adapter read IOPS.
+# TYPE vsphere_host_storageAdapter_numberReadAveraged_average gauge
+vsphere_host_storageAdapter_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",adapter="vmhba0"} 120
+vsphere_host_storageAdapter_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",adapter="vmhba0"} 144
+vsphere_host_storageAdapter_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",adapter="vmhba0"} 19
+vsphere_host_storageAdapter_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",adapter="vmhba0"} 53
+
+# HELP vsphere_host_storageAdapter_numberWriteAveraged_average Storage adapter write IOPS.
+# TYPE vsphere_host_storageAdapter_numberWriteAveraged_average gauge
+vsphere_host_storageAdapter_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",adapter="vmhba0"} 65
+vsphere_host_storageAdapter_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",adapter="vmhba0"} 25
+vsphere_host_storageAdapter_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",adapter="vmhba0"} 54
+vsphere_host_storageAdapter_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",adapter="vmhba0"} 29
+
+# HELP vsphere_host_disk_totalReadLatency_average Disk read latency in ms.
+# TYPE vsphere_host_disk_totalReadLatency_average gauge
+vsphere_host_disk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",disk="naa.6000c29a0001"} 2.58
+vsphere_host_disk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",disk="naa.6000c29a0001"} 5.27
+vsphere_host_disk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",disk="naa.6000c29a0001"} 3.24
+vsphere_host_disk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",disk="naa.6000c29a0001"} 3.28
+
+# HELP vsphere_host_disk_totalWriteLatency_average Disk write latency in ms.
+# TYPE vsphere_host_disk_totalWriteLatency_average gauge
+vsphere_host_disk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",disk="naa.6000c29a0001"} 2.07
+vsphere_host_disk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",disk="naa.6000c29a0001"} 2.5
+vsphere_host_disk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",disk="naa.6000c29a0001"} 7.52
+vsphere_host_disk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",disk="naa.6000c29a0001"} 5.36
+
+# HELP vsphere_vm_cpu_demand_average VM CPU demand (used for label discovery).
+# TYPE vsphere_vm_cpu_demand_average gauge
+vsphere_vm_cpu_demand_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01"} 4655
+vsphere_vm_cpu_demand_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01"} 5375
+vsphere_vm_cpu_demand_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02"} 3277
+vsphere_vm_cpu_demand_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02"} 4840
+vsphere_vm_cpu_demand_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01"} 5108
+vsphere_vm_cpu_demand_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01"} 5656
+vsphere_vm_cpu_demand_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02"} 1193
+vsphere_vm_cpu_demand_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02"} 2606
+
+# HELP vsphere_vm_cpu_usage_average VM CPU usage percentage.
+# TYPE vsphere_vm_cpu_usage_average gauge
+vsphere_vm_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01",cpu="instance-total"} 46.55
+vsphere_vm_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01",cpu="instance-total"} 53.75
+vsphere_vm_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02",cpu="instance-total"} 32.77
+vsphere_vm_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02",cpu="instance-total"} 48.4
+vsphere_vm_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01",cpu="instance-total"} 51.08
+vsphere_vm_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01",cpu="instance-total"} 56.56
+vsphere_vm_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02",cpu="instance-total"} 11.93
+vsphere_vm_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02",cpu="instance-total"} 26.06
+
+# HELP vsphere_vm_cpu_idle_summation VM CPU idle time (used for label discovery).
+# TYPE vsphere_vm_cpu_idle_summation counter
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01",cpu="instance-total"} 53452
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01",cpu="instance-total"} 46252
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02",cpu="instance-total"} 67233
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02",cpu="instance-total"} 51600
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01",cpu="instance-total"} 48923
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01",cpu="instance-total"} 43440
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02",cpu="instance-total"} 88074
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02",cpu="instance-total"} 73936
+
+# HELP vsphere_vm_mem_usage_average VM memory usage percentage.
+# TYPE vsphere_vm_mem_usage_average gauge
+vsphere_vm_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01"} 31.12
+vsphere_vm_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01"} 30.62
+vsphere_vm_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02"} 84.32
+vsphere_vm_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02"} 56.2
+vsphere_vm_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01"} 74.79
+vsphere_vm_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01"} 34.89
+vsphere_vm_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02"} 40.5
+vsphere_vm_mem_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02"} 33.71
+
+# HELP vsphere_vm_mem_active_average VM active memory in KB.
+# TYPE vsphere_vm_mem_active_average gauge
+vsphere_vm_mem_active_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01"} 3960696
+vsphere_vm_mem_active_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01"} 3688412
+vsphere_vm_mem_active_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02"} 1390032
+vsphere_vm_mem_active_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02"} 2784392
+vsphere_vm_mem_active_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01"} 1721288
+vsphere_vm_mem_active_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01"} 3844641
+vsphere_vm_mem_active_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02"} 1979978
+vsphere_vm_mem_active_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02"} 1186264
+
+# HELP vsphere_vm_cpu_usagemhz_average VM CPU usage in MHz.
+# TYPE vsphere_vm_cpu_usagemhz_average gauge
+vsphere_vm_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01"} 1137
+vsphere_vm_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01"} 2333
+vsphere_vm_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02"} 1198
+vsphere_vm_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02"} 2421
+vsphere_vm_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01"} 3612
+vsphere_vm_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01"} 1718
+vsphere_vm_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02"} 1033
+vsphere_vm_cpu_usagemhz_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02"} 3991
+
+# HELP vsphere_vm_cpu_readiness_average VM CPU readiness percentage.
+# TYPE vsphere_vm_cpu_readiness_average gauge
+vsphere_vm_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01"} 2.09
+vsphere_vm_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01"} 0.45
+vsphere_vm_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02"} 0.28
+vsphere_vm_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02"} 0.53
+vsphere_vm_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01"} 2.55
+vsphere_vm_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01"} 3.19
+vsphere_vm_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02"} 1.75
+vsphere_vm_cpu_readiness_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02"} 0.35
+
+# HELP vsphere_vm_cpu_ready_summation VM CPU ready time in ms.
+# TYPE vsphere_vm_cpu_ready_summation counter
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01",cpu="0"} 60
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01",cpu="1"} 149
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01",cpu="0"} 82
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01",cpu="1"} 146
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02",cpu="0"} 130
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02",cpu="1"} 7
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02",cpu="0"} 110
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02",cpu="1"} 104
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01",cpu="0"} 83
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01",cpu="1"} 44
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01",cpu="0"} 98
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01",cpu="1"} 21
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02",cpu="0"} 68
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02",cpu="1"} 71
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02",cpu="0"} 143
+vsphere_vm_cpu_ready_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02",cpu="1"} 132
+
+# HELP vsphere_vm_sys_uptime_latest VM system uptime in seconds.
+# TYPE vsphere_vm_sys_uptime_latest gauge
+vsphere_vm_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01"} 1468800
+vsphere_vm_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01"} 2851200
+vsphere_vm_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02"} 4233600
+vsphere_vm_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02"} 1036800
+vsphere_vm_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01"} 2851200
+vsphere_vm_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01"} 5097600
+vsphere_vm_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02"} 604800
+vsphere_vm_sys_uptime_latest{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02"} 4838400
+
+# HELP vsphere_vm_net_usage_average VM network usage in KBps.
+# TYPE vsphere_vm_net_usage_average gauge
+vsphere_vm_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01"} 1269
+vsphere_vm_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01"} 1691
+vsphere_vm_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02"} 1040
+vsphere_vm_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02"} 438
+vsphere_vm_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01"} 779
+vsphere_vm_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01"} 365
+vsphere_vm_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02"} 1909
+vsphere_vm_net_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02"} 1849
+
+# HELP vsphere_vm_net_bytesTx_average VM network bytes transmitted.
+# TYPE vsphere_vm_net_bytesTx_average gauge
+vsphere_vm_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01",interface="eth0"} 18378
+vsphere_vm_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01",interface="eth0"} 12019
+vsphere_vm_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02",interface="eth0"} 9823
+vsphere_vm_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02",interface="eth0"} 2326
+vsphere_vm_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01",interface="eth0"} 7323
+vsphere_vm_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01",interface="eth0"} 19708
+vsphere_vm_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02",interface="eth0"} 16155
+vsphere_vm_net_bytesTx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02",interface="eth0"} 4865
+
+# HELP vsphere_vm_net_bytesRx_average VM network bytes received.
+# TYPE vsphere_vm_net_bytesRx_average gauge
+vsphere_vm_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01",interface="eth0"} 4893
+vsphere_vm_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01",interface="eth0"} 11390
+vsphere_vm_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02",interface="eth0"} 1667
+vsphere_vm_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02",interface="eth0"} 14665
+vsphere_vm_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01",interface="eth0"} 16339
+vsphere_vm_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01",interface="eth0"} 19562
+vsphere_vm_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02",interface="eth0"} 10701
+vsphere_vm_net_bytesRx_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02",interface="eth0"} 2603
+
+# HELP vsphere_vm_virtualDisk_numberReadAveraged_average VM virtual disk read IOPS.
+# TYPE vsphere_vm_virtualDisk_numberReadAveraged_average gauge
+vsphere_vm_virtualDisk_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01"} 53
+vsphere_vm_virtualDisk_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01"} 76
+vsphere_vm_virtualDisk_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02"} 14
+vsphere_vm_virtualDisk_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02"} 43
+vsphere_vm_virtualDisk_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01"} 49
+vsphere_vm_virtualDisk_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01"} 77
+vsphere_vm_virtualDisk_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02"} 74
+vsphere_vm_virtualDisk_numberReadAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02"} 61
+
+# HELP vsphere_vm_virtualDisk_numberWriteAveraged_average VM virtual disk write IOPS.
+# TYPE vsphere_vm_virtualDisk_numberWriteAveraged_average gauge
+vsphere_vm_virtualDisk_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01"} 55
+vsphere_vm_virtualDisk_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01"} 57
+vsphere_vm_virtualDisk_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02"} 33
+vsphere_vm_virtualDisk_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02"} 54
+vsphere_vm_virtualDisk_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01"} 31
+vsphere_vm_virtualDisk_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01"} 72
+vsphere_vm_virtualDisk_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02"} 37
+vsphere_vm_virtualDisk_numberWriteAveraged_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02"} 21
+
+# HELP vsphere_vm_virtualDisk_totalReadLatency_average VM virtual disk read latency in ms.
+# TYPE vsphere_vm_virtualDisk_totalReadLatency_average gauge
+vsphere_vm_virtualDisk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01",disk="scsi0:0"} 0.85
+vsphere_vm_virtualDisk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01",disk="scsi0:0"} 0.62
+vsphere_vm_virtualDisk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02",disk="scsi0:0"} 3.55
+vsphere_vm_virtualDisk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02",disk="scsi0:0"} 3.74
+vsphere_vm_virtualDisk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01",disk="scsi0:0"} 0.54
+vsphere_vm_virtualDisk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01",disk="scsi0:0"} 4.39
+vsphere_vm_virtualDisk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02",disk="scsi0:0"} 0.82
+vsphere_vm_virtualDisk_totalReadLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02",disk="scsi0:0"} 0.87
+
+# HELP vsphere_vm_virtualDisk_totalWriteLatency_average VM virtual disk write latency in ms.
+# TYPE vsphere_vm_virtualDisk_totalWriteLatency_average gauge
+vsphere_vm_virtualDisk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01",disk="scsi0:0"} 0.67
+vsphere_vm_virtualDisk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01",disk="scsi0:0"} 2.32
+vsphere_vm_virtualDisk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02",disk="scsi0:0"} 3.33
+vsphere_vm_virtualDisk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02",disk="scsi0:0"} 2.03
+vsphere_vm_virtualDisk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01",disk="scsi0:0"} 3.17
+vsphere_vm_virtualDisk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01",disk="scsi0:0"} 3.47
+vsphere_vm_virtualDisk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02",disk="scsi0:0"} 4.48
+vsphere_vm_virtualDisk_totalWriteLatency_average{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02",disk="scsi0:0"} 5.35
+
