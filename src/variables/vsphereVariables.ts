@@ -46,7 +46,7 @@ export function createClusterFilterVariable(options: { isMulti?: boolean } = {})
     datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
     query: {
       refId: 'clusterVariableQuery',
-      query: `label_values(vsphere_host_cpu_coreUtilization_average{vcenter=~"\${${VCENTER_VARIABLE_NAME}:regex}"}, clustername)`,
+      query: `label_values(vsphere_host_cpu_coreUtilization_average{vcenter=~"\$${VCENTER_VARIABLE_NAME}"}, clustername)`,
     },
     isMulti,
     includeAll: isMulti,
@@ -63,7 +63,7 @@ export function createHostFilterVariable(options: { isMulti?: boolean } = {}) {
     datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
     query: {
       refId: 'hostVariableQuery',
-      query: `label_values(vsphere_host_cpu_coreUtilization_average{vcenter=~"\${${VCENTER_VARIABLE_NAME}:regex}", clustername=~"\${${CLUSTER_VARIABLE_NAME}:regex}"}, esxhostname)`,
+      query: `label_values(vsphere_host_cpu_coreUtilization_average{vcenter=~"\$${VCENTER_VARIABLE_NAME}", clustername=~"\$${CLUSTER_VARIABLE_NAME}"}, esxhostname)`,
     },
     isMulti,
     includeAll: isMulti,
@@ -88,7 +88,7 @@ export function createVmFilterVariable(options: { isMulti?: boolean } = {}) {
     datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
     query: {
       refId: 'vmVariableQuery',
-      query: `label_values(vsphere_vm_cpu_demand_average{vcenter=~"\${${VCENTER_VARIABLE_NAME}:regex}", clustername=~"\${${CLUSTER_VARIABLE_NAME}:regex}", esxhostname=~"\${${HOST_VARIABLE_NAME}:regex}"}, vmname)`,
+      query: `label_values(vsphere_vm_cpu_demand_average{vcenter=~"\$${VCENTER_VARIABLE_NAME}", clustername=~"\$${CLUSTER_VARIABLE_NAME}", esxhostname=~"\$${HOST_VARIABLE_NAME}"}, vmname)`,
     },
     isMulti,
     includeAll: isMulti,
