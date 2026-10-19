@@ -1,8 +1,17 @@
 # Changelog
 
-## Unreleased
+## 1.1.0
 
-- Design/UX alignment pass with the sibling `debeka-k8s-app` plugin, so both feel like the same product: a new **vCenters** page (list + Overview/Performance drilldown) fills the previously-missing top level of the vcenter/cluster/host/vm hierarchy; list tables now render CPU/RAM/CPU-Ready columns as combined value+color+bar meter cells (wiring up the `tableCells.tsx` renderer that existed but was never used); every drilldown page got a usage-derived health banner, a metadata `InfoCard` (replacing the VM page's 5 separate identity stat tiles), a type-colored entity badge (vcenter/cluster/host/vm each their own color, previously all hardcoded blue), and an Overview/Performance tab split instead of one long flat panel list; the Cluster/Host/VM Quick Overview stat tiles' usage thresholds (previously 70/85 vs. 70/90, duplicated three times) are now unified onto one shared 70/85 scale reused everywhere.
+Design/UX alignment pass with the sibling `debeka-k8s-app` plugin, so both feel like the same product:
+
+- New **vCenters** page (list + detail) — fills the previously-missing top level of the vcenter/cluster/host/vm hierarchy, with a Clusters table and CPU/RAM/network charts.
+- List tables (Clusters/Hosts/VMs/vCenters) now render CPU/RAM/CPU-Ready columns as combined value+color+bar meter cells instead of plain numbers (wiring up the `tableCells.tsx` renderer that existed but was never used).
+- Type-colored entity badges (vcenter/cluster/host/vm each their own color) next to every detail page's title, instead of all hardcoded blue.
+- The vCenter column is now a clickable link everywhere it appears in a table.
+- Press **"/"** anywhere in the app to jump straight to a vCenter/cluster/host/VM by name, with arrow-key navigation and Enter to open — same shortcut as the sibling Kubernetes app.
+- Fix: the Clusters/Hosts/VMs list pages' CPU%/RAM%/CPU-Ready% columns were broken (missing entirely, or collapsed to a single fleet-wide number) whenever more than one entity was selected — the default "All" state every user sees on first load.
+- Fix: a host's CPU usage % was averaged together with its own per-core breakdown rows, giving a slightly wrong number even on that host's own detail page.
+- The Cluster/Host/VM Quick Overview stat tiles' usage thresholds (previously 70/85 vs. 70/90, duplicated three times) are now unified onto one shared 70/85 scale reused everywhere.
 
 ## 1.0.1
 
