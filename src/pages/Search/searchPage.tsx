@@ -30,7 +30,7 @@ import {
 } from '../../variables/vsphereVariables';
 import { attachExploreMenus } from '../../scenes/panelExplore';
 
-const SEARCH_URL = `${PLUGIN_BASE_URL}/${ROUTES.Search}`;
+export const SEARCH_URL = `${PLUGIN_BASE_URL}/${ROUTES.Search}`;
 const VCENTERS_URL = `${PLUGIN_BASE_URL}/${ROUTES.VCenters}`;
 const CLUSTERS_URL = `${PLUGIN_BASE_URL}/${ROUTES.Clusters}`;
 const HOSTS_URL = `${PLUGIN_BASE_URL}/${ROUTES.Hosts}`;
@@ -41,10 +41,10 @@ const VMS_URL = `${PLUGIN_BASE_URL}/${ROUTES.VMs}`;
 // variable interpolation at query-run time, not here.
 const searchRegex = `\${${SEARCH_VARIABLE_NAME}:regex}`;
 
-type Category = SearchTableQueryKey;
-type Row = Record<string, string>;
+export type Category = SearchTableQueryKey;
+export type Row = Record<string, string>;
 
-const CATEGORY_ORDER: Category[] = ['vcenters', 'clusters', 'hosts', 'vms'];
+export const CATEGORY_ORDER: Category[] = ['vcenters', 'clusters', 'hosts', 'vms'];
 const CATEGORY_LABELS: Record<Category, string> = {
   vcenters: 'vCenters',
   clusters: 'Clusters',
@@ -72,7 +72,7 @@ function linkOverride(
 // autocomplete suggestion (a primary name, an immediate-parent "secondary"
 // line, and the URL a click navigates straight to) - same shape as
 // debeka-k8s-app's CATEGORY_DEFS.
-interface CategoryDef {
+export interface CategoryDef {
   title: string;
   indexByName: Record<string, number>;
   primaryField: string;
@@ -81,7 +81,7 @@ interface CategoryDef {
   buildOverrides: (b: FieldConfigOverridesBuilder<any>) => FieldConfigOverridesBuilder<any>;
 }
 
-const CATEGORY_DEFS: Record<Category, CategoryDef> = {
+export const CATEGORY_DEFS: Record<Category, CategoryDef> = {
   vcenters: {
     title: 'vCenters',
     indexByName: { vcenter: 0 },
@@ -137,7 +137,7 @@ const CATEGORY_DEFS: Record<Category, CategoryDef> = {
   },
 };
 
-function mergeAndOrganize(indexByName: Record<string, number>) {
+export function mergeAndOrganize(indexByName: Record<string, number>) {
   return [
     { id: 'merge', options: {} },
     { id: 'organize', options: { excludeByName: { Time: true, Value: true }, indexByName, renameByName: {} } },
@@ -166,7 +166,7 @@ function buildCategoryPipeline(category: Category) {
   return { transformedData, panel };
 }
 
-function framesToRows(series: DataFrame[] | undefined): Row[] {
+export function framesToRows(series: DataFrame[] | undefined): Row[] {
   if (!series) {
     return [];
   }
