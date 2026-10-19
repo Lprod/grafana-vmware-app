@@ -101,8 +101,8 @@ function getHostsListScene() {
   });
 }
 
-// Overview tab: Quick Overview stat tile -> Virtual Machines table.
-function getHostOverviewScene(host: string) {
+// Quick Overview stat tile -> Virtual Machines table -> detailed CPU/RAM/network/storage charts.
+function getHostDetailScene(host: string) {
   const f = { esxhostname: equals(host) };
   const q = hostQueries;
 
@@ -130,6 +130,30 @@ function getHostOverviewScene(host: string) {
       { id: 'organize', options: { excludeByName: { Time: true, esxhostname: true } } },
     ],
   });
+
+  const cpuByCpu = promRunner([query('A', q.cpuUtilizationAvgPercentByCpu(f), 'CPU Usage % {{cpu}}')]);
+  const ramUtilization = promRunner([query('A', q.ramUtilizationPercent(f), 'RAM Usage %')]);
+  const cpuReady = promRunner([query('A', q.cpuReadyMs(f), 'CPU Ready')]);
+  const network = promRunner([
+    query('A', q.networkBytesRxByInterface(f), '{{interface}} bytesRx'),
+    query('B', q.networkBytesTxByInterface(f), '{{interface}} bytesTx'),
+  ]);
+  const diskLatency = promRunner([
+    query('A', q.diskReadLatencyByDisk(f), 'Read - {{disk}}'),
+    query('B', q.diskWriteLatencyByDisk(f), 'Write - {{disk}}'),
+  ]);
+  const storageIops = promRunner([
+    query('A', q.storageAdapterReadIops(f), '{{adapter}} Read'),
+    query('B', q.storageAdapterWriteIops(f), '{{adapter}} Write'),
+  ]);
+
+  const ts = (title: string, unit: string, data: ReturnType<typeof promRunner>) =>
+    PanelBuilders.timeseries()
+      .setTitle(title)
+      .setUnit(unit)
+      .setData(data)
+      .setHeaderActions(new PanelTimeRangeCompare())
+      .build();
 
   return new EmbeddedScene({
     $behaviors: [attachExploreMenus],
@@ -163,45 +187,6 @@ function getHostOverviewScene(host: string) {
             )
             .build(),
         }),
-      ],
-    }),
-  });
-}
-
-// Performance tab: the host's detailed CPU/RAM/network/storage charts.
-function getHostPerformanceScene(host: string) {
-  const f = { esxhostname: equals(host) };
-  const q = hostQueries;
-
-  const cpuByCpu = promRunner([query('A', q.cpuUtilizationAvgPercentByCpu(f), 'CPU Usage % {{cpu}}')]);
-  const ramUtilization = promRunner([query('A', q.ramUtilizationPercent(f), 'RAM Usage %')]);
-  const cpuReady = promRunner([query('A', q.cpuReadyMs(f), 'CPU Ready')]);
-  const network = promRunner([
-    query('A', q.networkBytesRxByInterface(f), '{{interface}} bytesRx'),
-    query('B', q.networkBytesTxByInterface(f), '{{interface}} bytesTx'),
-  ]);
-  const diskLatency = promRunner([
-    query('A', q.diskReadLatencyByDisk(f), 'Read - {{disk}}'),
-    query('B', q.diskWriteLatencyByDisk(f), 'Write - {{disk}}'),
-  ]);
-  const storageIops = promRunner([
-    query('A', q.storageAdapterReadIops(f), '{{adapter}} Read'),
-    query('B', q.storageAdapterWriteIops(f), '{{adapter}} Write'),
-  ]);
-
-  const ts = (title: string, unit: string, data: ReturnType<typeof promRunner>) =>
-    PanelBuilders.timeseries()
-      .setTitle(title)
-      .setUnit(unit)
-      .setData(data)
-      .setHeaderActions(new PanelTimeRangeCompare())
-      .build();
-
-  return new EmbeddedScene({
-    $behaviors: [attachExploreMenus],
-    body: new SceneFlexLayout({
-      direction: 'column',
-      children: [
         new SceneFlexLayout({
           direction: 'row',
           height: 260,
@@ -229,21 +214,13 @@ function getHostDetailPage(routeMatch: SceneRouteMatch<{ host: string }>, parent
   const host = decodeURIComponent(routeMatch.params.host);
   const baseUrl = `${HOSTS_URL}/${encodeURIComponent(host)}`;
 
-  const tabs = [
-    { slug: 'overview', title: 'Overview', getScene: () => getHostOverviewScene(host) },
-    { slug: 'performance', title: 'Performance', getScene: () => getHostPerformanceScene(host) },
-  ].map(
-    (tab) =>
-      new SceneAppPage({ title: tab.title, url: `${baseUrl}/${tab.slug}`, routePath: tab.slug, getScene: tab.getScene })
-  );
-
   return new SceneAppPage({
     title: host,
     renderTitle: (title) => <EntityPageTitle title={title} investigate={{ kind: 'host', name: title, host: title }} />,
     url: baseUrl,
     routePath: baseUrl,
     getParentPage: () => parent,
-    tabs,
+    getScene: () => getHostDetailScene(host),
     $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
     $variables: new SceneVariableSet({ variables: [createThanosDatasourceVariable()] }),
     controls: [

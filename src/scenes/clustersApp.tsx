@@ -117,8 +117,8 @@ function getClustersListScene() {
   });
 }
 
-// Overview tab: Quick Overview stat tile -> Hosts table.
-function getClusterOverviewScene(cluster: string) {
+// Quick Overview stat tile -> Hosts table -> detailed capacity/IOPS/network charts.
+function getClusterDetailScene(cluster: string) {
   const f = { clustername: equals(cluster) };
   const q = clusterQueries;
 
@@ -137,39 +137,6 @@ function getClusterOverviewScene(cluster: string) {
     $data: promRunner([query('A', q.hostUptimeTable(f))], { instant: true, format: 'table' }),
     transformations: [{ id: 'organize', options: { excludeByName: { Time: true, Value: true } } }],
   });
-
-  return new EmbeddedScene({
-    $behaviors: [attachExploreMenus],
-    body: new SceneFlexLayout({
-      direction: 'column',
-      children: [
-        new SceneFlexItem({
-          height: 200,
-          body: PanelBuilders.stat()
-            .setTitle('Cluster Quick Overview')
-            .setUnit('s')
-            .setData(quickOverview)
-            .setOverrides(applyClusterOrHostQuickOverviewOverrides)
-            .build(),
-        }),
-        new SceneFlexItem({
-          height: 300,
-          body: PanelBuilders.table()
-            .setTitle('Hosts')
-            .setUnit('s')
-            .setData(hostUptimeTable)
-            .setOverrides(applyVsphereDrilldownLinks)
-            .build(),
-        }),
-      ],
-    }),
-  });
-}
-
-// Performance tab: the cluster's detailed capacity/IOPS/network charts.
-function getClusterPerformanceScene(cluster: string) {
-  const f = { clustername: equals(cluster) };
-  const q = clusterQueries;
 
   const storageIops = promRunner([
     query('A', q.storageAdapterReadIops(f), '{{adapter}} Read'),
@@ -203,6 +170,24 @@ function getClusterPerformanceScene(cluster: string) {
     body: new SceneFlexLayout({
       direction: 'column',
       children: [
+        new SceneFlexItem({
+          height: 200,
+          body: PanelBuilders.stat()
+            .setTitle('Cluster Quick Overview')
+            .setUnit('s')
+            .setData(quickOverview)
+            .setOverrides(applyClusterOrHostQuickOverviewOverrides)
+            .build(),
+        }),
+        new SceneFlexItem({
+          height: 300,
+          body: PanelBuilders.table()
+            .setTitle('Hosts')
+            .setUnit('s')
+            .setData(hostUptimeTable)
+            .setOverrides(applyVsphereDrilldownLinks)
+            .build(),
+        }),
         new SceneFlexLayout({
           direction: 'row',
           height: 260,
@@ -233,14 +218,6 @@ function getClusterDetailPage(routeMatch: SceneRouteMatch<{ cluster: string }>, 
   const cluster = decodeURIComponent(routeMatch.params.cluster);
   const baseUrl = `${CLUSTERS_URL}/${encodeURIComponent(cluster)}`;
 
-  const tabs = [
-    { slug: 'overview', title: 'Overview', getScene: () => getClusterOverviewScene(cluster) },
-    { slug: 'performance', title: 'Performance', getScene: () => getClusterPerformanceScene(cluster) },
-  ].map(
-    (tab) =>
-      new SceneAppPage({ title: tab.title, url: `${baseUrl}/${tab.slug}`, routePath: tab.slug, getScene: tab.getScene })
-  );
-
   return new SceneAppPage({
     title: cluster,
     renderTitle: (title) => (
@@ -249,7 +226,7 @@ function getClusterDetailPage(routeMatch: SceneRouteMatch<{ cluster: string }>, 
     url: baseUrl,
     routePath: baseUrl,
     getParentPage: () => parent,
-    tabs,
+    getScene: () => getClusterDetailScene(cluster),
     $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
     $variables: new SceneVariableSet({ variables: [createThanosDatasourceVariable()] }),
     controls: [

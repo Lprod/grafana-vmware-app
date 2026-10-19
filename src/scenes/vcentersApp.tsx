@@ -115,7 +115,8 @@ function getVcentersListScene() {
   });
 }
 
-function getVcenterOverviewScene(vcenter: string) {
+// Clusters table -> cluster/host charts.
+function getVcenterDetailScene(vcenter: string) {
   const f = { vcenter: equals(vcenter) };
   const q = vcenterQueries;
 
@@ -157,19 +158,6 @@ function getVcenterOverviewScene(vcenter: string) {
     )
     .build();
 
-  return new EmbeddedScene({
-    $behaviors: [attachExploreMenus],
-    body: new SceneFlexLayout({
-      direction: 'column',
-      children: [new SceneFlexItem({ body: clustersPanel })],
-    }),
-  });
-}
-
-function getVcenterPerformanceScene(vcenter: string) {
-  const f = { vcenter: equals(vcenter) };
-  const q = vcenterQueries;
-
   const clusterCpu = promRunner([query('A', q.clusterCpuUsageTimeseries(f), '{{clustername}}')]);
   const clusterRam = promRunner([query('A', q.clusterRamUsageTimeseries(f), '{{clustername}}')]);
   const hostNet = promRunner([query('A', q.hostNetworkUsage(f), '{{esxhostname}}')]);
@@ -187,6 +175,7 @@ function getVcenterPerformanceScene(vcenter: string) {
     body: new SceneFlexLayout({
       direction: 'column',
       children: [
+        new SceneFlexItem({ body: clustersPanel }),
         new SceneFlexLayout({
           direction: 'row',
           height: 300,
@@ -205,21 +194,13 @@ function getVcenterDetailPage(routeMatch: SceneRouteMatch<{ vcenter: string }>, 
   const vcenter = decodeURIComponent(routeMatch.params.vcenter);
   const baseUrl = `${VCENTERS_URL}/${encodeURIComponent(vcenter)}`;
 
-  const tabs = [
-    { slug: 'overview', title: 'Overview', getScene: () => getVcenterOverviewScene(vcenter) },
-    { slug: 'performance', title: 'Performance', getScene: () => getVcenterPerformanceScene(vcenter) },
-  ].map(
-    (tab) =>
-      new SceneAppPage({ title: tab.title, url: `${baseUrl}/${tab.slug}`, routePath: tab.slug, getScene: tab.getScene })
-  );
-
   return new SceneAppPage({
     title: vcenter,
     renderTitle: (title) => <EntityPageTitle title={title} investigate={{ kind: 'vcenter', name: title }} />,
     url: baseUrl,
     routePath: baseUrl,
     getParentPage: () => parent,
-    tabs,
+    getScene: () => getVcenterDetailScene(vcenter),
     $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
     $variables: new SceneVariableSet({ variables: [createThanosDatasourceVariable()] }),
     controls: [

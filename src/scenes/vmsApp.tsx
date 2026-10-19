@@ -103,8 +103,8 @@ function getVmsListScene() {
   });
 }
 
-// Overview tab: Quick Overview stat tile.
-function getVmOverviewScene(vm: string) {
+// Quick Overview stat tile -> the VM's CPU/RAM/network/storage charts.
+function getVmDetailScene(vm: string) {
   const f = { vmname: equals(vm) };
   const q = vmQueries;
 
@@ -118,29 +118,6 @@ function getVmOverviewScene(vm: string) {
     ],
     { instant: true }
   );
-
-  return new EmbeddedScene({
-    $behaviors: [attachExploreMenus],
-    body: new SceneFlexLayout({
-      direction: 'column',
-      children: [
-        new SceneFlexItem({
-          height: 220,
-          body: PanelBuilders.stat()
-            .setTitle('VM Quick Overview')
-            .setData(quickOverview)
-            .setOverrides(applyVmQuickOverviewOverrides)
-            .build(),
-        }),
-      ],
-    }),
-  });
-}
-
-// Performance tab: the VM's CPU/RAM/network/storage charts.
-function getVmPerformanceScene(vm: string) {
-  const f = { vmname: equals(vm) };
-  const q = vmQueries;
 
   const cpuUsage = promRunner([
     query('A', q.cpuReadyPercent(f), 'CPU Ready %'),
@@ -170,6 +147,14 @@ function getVmPerformanceScene(vm: string) {
     body: new SceneFlexLayout({
       direction: 'column',
       children: [
+        new SceneFlexItem({
+          height: 220,
+          body: PanelBuilders.stat()
+            .setTitle('VM Quick Overview')
+            .setData(quickOverview)
+            .setOverrides(applyVmQuickOverviewOverrides)
+            .build(),
+        }),
         new SceneFlexLayout({
           direction: 'row',
           height: 260,
@@ -196,21 +181,13 @@ function getVmDetailPage(routeMatch: SceneRouteMatch<{ vm: string }>, parent: Sc
   const vm = decodeURIComponent(routeMatch.params.vm);
   const baseUrl = `${VMS_URL}/${encodeURIComponent(vm)}`;
 
-  const tabs = [
-    { slug: 'overview', title: 'Overview', getScene: () => getVmOverviewScene(vm) },
-    { slug: 'performance', title: 'Performance', getScene: () => getVmPerformanceScene(vm) },
-  ].map(
-    (tab) =>
-      new SceneAppPage({ title: tab.title, url: `${baseUrl}/${tab.slug}`, routePath: tab.slug, getScene: tab.getScene })
-  );
-
   return new SceneAppPage({
     title: vm,
     renderTitle: (title) => <EntityPageTitle title={title} investigate={{ kind: 'vm', name: title }} />,
     url: baseUrl,
     routePath: baseUrl,
     getParentPage: () => parent,
-    tabs,
+    getScene: () => getVmDetailScene(vm),
     $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
     $variables: new SceneVariableSet({ variables: [createThanosDatasourceVariable()] }),
     controls: [
