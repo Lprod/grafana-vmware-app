@@ -17,15 +17,13 @@ import {
 } from '@grafana/scenes';
 import { PLUGIN_BASE_URL, ROUTES } from '../constants';
 import { clusterQueries } from '../queries/clusterQueries';
-import { equals, filterFragment } from '../queries/queryHelpers';
+import { equals } from '../queries/queryHelpers';
 import { promRunner, query } from './sceneHelpers';
 import { attachExploreMenus } from './panelExplore';
 import { applyVsphereDrilldownLinks } from './drilldownLinks';
 import { PanelTimeRangeCompare } from './panelTimeRangeCompare';
 import { applyClusterOrHostQuickOverviewOverrides } from './quickOverviewOverrides';
 import { EntityPageTitle } from './entityBadge';
-import { InfoCard } from './infoCard';
-import { UsageHealthBanner } from './healthBanner';
 import { customCellOptions, UsagePercentCell } from './tableCells';
 import React from 'react';
 import {
@@ -119,28 +117,10 @@ function getClustersListScene() {
   });
 }
 
-// Overview tab: health banner -> identity info card + Quick Overview stat
-// tile -> Hosts table, the same "banner -> info cards -> child-entity table"
-// anatomy debeka-k8s-app uses on every drilldown's Overview tab.
+// Overview tab: Quick Overview stat tile -> Hosts table.
 function getClusterOverviewScene(cluster: string) {
   const f = { clustername: equals(cluster) };
   const q = clusterQueries;
-
-  const identity = new SceneQueryRunner({
-    datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
-    queries: [
-      {
-        refId: 'info',
-        expr: `count by (vcenter, clustername) (vsphere_host_sys_uptime_latest{${filterFragment(f, ['clustername'])}})`,
-        format: 'table',
-        instant: true,
-      },
-    ],
-  });
-  const health = promRunner([query('cpu', q.cpuUsagePercent(f)), query('mem', q.ramUsagePercent(f))], {
-    instant: true,
-    format: 'table',
-  });
 
   const quickOverview = promRunner(
     [
@@ -164,34 +144,13 @@ function getClusterOverviewScene(cluster: string) {
       direction: 'column',
       children: [
         new SceneFlexItem({
-          ySizing: 'content',
-          body: new UsageHealthBanner({ subject: 'Cluster', $data: health, cpuRefId: 'cpu', ramRefId: 'mem' }),
-        }),
-        new SceneFlexLayout({
-          direction: 'row',
           height: 200,
-          children: [
-            new SceneFlexItem({
-              width: '25%',
-              body: new InfoCard({
-                title: 'Cluster information',
-                $data: identity,
-                rows: [
-                  { label: 'vCenter', fieldName: 'vcenter' },
-                  { label: 'Hosts', refId: 'info' },
-                ],
-              }),
-            }),
-            new SceneFlexItem({
-              width: '75%',
-              body: PanelBuilders.stat()
-                .setTitle('Cluster Quick Overview')
-                .setUnit('s')
-                .setData(quickOverview)
-                .setOverrides(applyClusterOrHostQuickOverviewOverrides)
-                .build(),
-            }),
-          ],
+          body: PanelBuilders.stat()
+            .setTitle('Cluster Quick Overview')
+            .setUnit('s')
+            .setData(quickOverview)
+            .setOverrides(applyClusterOrHostQuickOverviewOverrides)
+            .build(),
         }),
         new SceneFlexItem({
           height: 300,

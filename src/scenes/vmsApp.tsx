@@ -15,7 +15,6 @@ import {
   SceneVariableSet,
   VariableValueControl,
 } from '@grafana/scenes';
-import { DataFrame } from '@grafana/data';
 import { PLUGIN_BASE_URL, ROUTES } from '../constants';
 import { vmQueries } from '../queries/vmQueries';
 import { equals } from '../queries/queryHelpers';
@@ -25,8 +24,6 @@ import { applyVsphereDrilldownLinks } from './drilldownLinks';
 import { PanelTimeRangeCompare } from './panelTimeRangeCompare';
 import { applyVmQuickOverviewOverrides } from './quickOverviewOverrides';
 import { EntityPageTitle } from './entityBadge';
-import { InfoCard, findFieldAcrossFrames } from './infoCard';
-import { UsageHealthBanner } from './healthBanner';
 import { customCellOptions, UsagePercentCell } from './tableCells';
 import React from 'react';
 import {
@@ -35,8 +32,6 @@ import {
   createThanosDatasourceVariable,
   createVmFilterVariable,
 } from '../variables/vsphereVariables';
-import { CLUSTERS_URL } from './clustersApp';
-import { HOSTS_URL } from './hostsApp';
 
 export const VMS_URL = `${PLUGIN_BASE_URL}/${ROUTES.VMs}`;
 
@@ -108,18 +103,10 @@ function getVmsListScene() {
   });
 }
 
-// Overview tab: health banner -> identity info card (replacing the 5
-// separate VCENTER/CLUSTERNAME/ESXHOSTNAME/VMNAME/OSNAME stat tiles with one
-// card) + Quick Overview stat tile.
+// Overview tab: Quick Overview stat tile.
 function getVmOverviewScene(vm: string) {
   const f = { vmname: equals(vm) };
   const q = vmQueries;
-
-  const identity = promRunner([query('A', q.identityRow(f))], { instant: true, format: 'table' });
-  const health = promRunner(
-    [query('cpu', q.cpuUsagePercent(f)), query('mem', q.ramUsagePercent(f)), query('ready', q.cpuReadyPercent(f))],
-    { instant: true, format: 'table' }
-  );
 
   const quickOverview = promRunner(
     [
@@ -138,55 +125,12 @@ function getVmOverviewScene(vm: string) {
       direction: 'column',
       children: [
         new SceneFlexItem({
-          ySizing: 'content',
-          body: new UsageHealthBanner({
-            subject: 'Virtual machine',
-            $data: health,
-            cpuRefId: 'cpu',
-            ramRefId: 'mem',
-            readyRefId: 'ready',
-          }),
-        }),
-        new SceneFlexLayout({
-          direction: 'row',
           height: 220,
-          children: [
-            new SceneFlexItem({
-              width: '33%',
-              body: new InfoCard({
-                title: 'VM information',
-                $data: identity,
-                rows: [
-                  { label: 'Guest OS', fieldName: 'guest' },
-                  { label: 'vCenter', fieldName: 'vcenter' },
-                  {
-                    label: 'Cluster',
-                    fieldName: 'clustername',
-                    href: (frames: DataFrame[]) => {
-                      const cluster = findFieldAcrossFrames(frames, 'clustername');
-                      return cluster ? `${CLUSTERS_URL}/${encodeURIComponent(cluster)}` : undefined;
-                    },
-                  },
-                  {
-                    label: 'ESXi host',
-                    fieldName: 'esxhostname',
-                    href: (frames: DataFrame[]) => {
-                      const host = findFieldAcrossFrames(frames, 'esxhostname');
-                      return host ? `${HOSTS_URL}/${encodeURIComponent(host)}` : undefined;
-                    },
-                  },
-                ],
-              }),
-            }),
-            new SceneFlexItem({
-              width: '67%',
-              body: PanelBuilders.stat()
-                .setTitle('VM Quick Overview')
-                .setData(quickOverview)
-                .setOverrides(applyVmQuickOverviewOverrides)
-                .build(),
-            }),
-          ],
+          body: PanelBuilders.stat()
+            .setTitle('VM Quick Overview')
+            .setData(quickOverview)
+            .setOverrides(applyVmQuickOverviewOverrides)
+            .build(),
         }),
       ],
     }),

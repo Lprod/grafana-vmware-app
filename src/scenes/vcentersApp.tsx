@@ -24,8 +24,6 @@ import { applyVsphereDrilldownLinks } from './drilldownLinks';
 import { PanelTimeRangeCompare } from './panelTimeRangeCompare';
 import { customCellOptions, UsagePercentCell } from './tableCells';
 import { EntityPageTitle } from './entityBadge';
-import { InfoCard } from './infoCard';
-import { UsageHealthBanner } from './healthBanner';
 import React from 'react';
 import {
   VCENTER_VARIABLE_NAME,
@@ -121,22 +119,6 @@ function getVcenterOverviewScene(vcenter: string) {
   const f = { vcenter: equals(vcenter) };
   const q = vcenterQueries;
 
-  const summary = new SceneQueryRunner({
-    datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
-    queries: [
-      { refId: 'clusters', expr: q.clusterCount(f), format: 'table', instant: true },
-      { refId: 'hosts', expr: q.hostCount(f), format: 'table', instant: true },
-      { refId: 'vms', expr: q.vmCount(f), format: 'table', instant: true },
-    ],
-  });
-  const health = new SceneQueryRunner({
-    datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
-    queries: [
-      { refId: 'cpu', expr: q.cpuUsagePercent(f), format: 'table', instant: true },
-      { refId: 'mem', expr: q.ramUsagePercent(f), format: 'table', instant: true },
-    ],
-  });
-
   const clustersTable = new SceneDataTransformer({
     $data: new SceneQueryRunner({
       datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
@@ -179,26 +161,7 @@ function getVcenterOverviewScene(vcenter: string) {
     $behaviors: [attachExploreMenus],
     body: new SceneFlexLayout({
       direction: 'column',
-      children: [
-        new SceneFlexItem({
-          ySizing: 'content',
-          body: new UsageHealthBanner({ subject: 'vCenter', $data: health, cpuRefId: 'cpu', ramRefId: 'mem' }),
-        }),
-        new SceneFlexItem({
-          height: 180,
-          body: new InfoCard({
-            title: 'vCenter information',
-            $data: summary,
-            rows: [
-              { label: 'vCenter', render: () => vcenter },
-              { label: 'Clusters', refId: 'clusters' },
-              { label: 'Hosts', refId: 'hosts' },
-              { label: 'Virtual machines', refId: 'vms' },
-            ],
-          }),
-        }),
-        new SceneFlexItem({ body: clustersPanel }),
-      ],
+      children: [new SceneFlexItem({ body: clustersPanel })],
     }),
   });
 }

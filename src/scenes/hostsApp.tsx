@@ -15,18 +15,15 @@ import {
   SceneVariableSet,
   VariableValueControl,
 } from '@grafana/scenes';
-import { DataFrame } from '@grafana/data';
 import { PLUGIN_BASE_URL, ROUTES } from '../constants';
 import { hostQueries } from '../queries/hostQueries';
-import { equals, filterFragment } from '../queries/queryHelpers';
+import { equals } from '../queries/queryHelpers';
 import { promRunner, query } from './sceneHelpers';
 import { attachExploreMenus } from './panelExplore';
 import { applyVsphereDrilldownLinks } from './drilldownLinks';
 import { PanelTimeRangeCompare } from './panelTimeRangeCompare';
 import { applyClusterOrHostQuickOverviewOverrides } from './quickOverviewOverrides';
 import { EntityPageTitle } from './entityBadge';
-import { InfoCard, findFieldAcrossFrames } from './infoCard';
-import { UsageHealthBanner } from './healthBanner';
 import { customCellOptions, UsagePercentCell } from './tableCells';
 import React from 'react';
 import {
@@ -35,7 +32,6 @@ import {
   createHostFilterVariable,
   createThanosDatasourceVariable,
 } from '../variables/vsphereVariables';
-import { CLUSTERS_URL } from './clustersApp';
 
 export const HOSTS_URL = `${PLUGIN_BASE_URL}/${ROUTES.Hosts}`;
 
@@ -105,27 +101,10 @@ function getHostsListScene() {
   });
 }
 
-// Overview tab: health banner -> identity info card + Quick Overview stat
-// tile -> Virtual Machines table, same anatomy as the Cluster Drilldown.
+// Overview tab: Quick Overview stat tile -> Virtual Machines table.
 function getHostOverviewScene(host: string) {
   const f = { esxhostname: equals(host) };
   const q = hostQueries;
-
-  const identity = new SceneQueryRunner({
-    datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
-    queries: [
-      {
-        refId: 'info',
-        expr: `group by (vcenter, clustername, esxhostname) (vsphere_host_sys_uptime_latest{${filterFragment(f, ['esxhostname'])}})`,
-        format: 'table',
-        instant: true,
-      },
-    ],
-  });
-  const health = promRunner([query('cpu', q.cpuUsagePercent(f)), query('mem', q.ramUsagePercent(f))], {
-    instant: true,
-    format: 'table',
-  });
 
   const quickOverview = promRunner(
     [
@@ -158,41 +137,13 @@ function getHostOverviewScene(host: string) {
       direction: 'column',
       children: [
         new SceneFlexItem({
-          ySizing: 'content',
-          body: new UsageHealthBanner({ subject: 'ESXi host', $data: health, cpuRefId: 'cpu', ramRefId: 'mem' }),
-        }),
-        new SceneFlexLayout({
-          direction: 'row',
           height: 200,
-          children: [
-            new SceneFlexItem({
-              width: '25%',
-              body: new InfoCard({
-                title: 'Host information',
-                $data: identity,
-                rows: [
-                  { label: 'vCenter', fieldName: 'vcenter' },
-                  {
-                    label: 'Cluster',
-                    fieldName: 'clustername',
-                    href: (frames: DataFrame[]) => {
-                      const cluster = findFieldAcrossFrames(frames, 'clustername');
-                      return cluster ? `${CLUSTERS_URL}/${encodeURIComponent(cluster)}` : undefined;
-                    },
-                  },
-                ],
-              }),
-            }),
-            new SceneFlexItem({
-              width: '75%',
-              body: PanelBuilders.stat()
-                .setTitle('ESXi Host Quick Overview')
-                .setUnit('s')
-                .setData(quickOverview)
-                .setOverrides(applyClusterOrHostQuickOverviewOverrides)
-                .build(),
-            }),
-          ],
+          body: PanelBuilders.stat()
+            .setTitle('ESXi Host Quick Overview')
+            .setUnit('s')
+            .setData(quickOverview)
+            .setOverrides(applyClusterOrHostQuickOverviewOverrides)
+            .build(),
         }),
         new SceneFlexItem({
           height: 300,
