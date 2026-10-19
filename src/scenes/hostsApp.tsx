@@ -15,25 +15,31 @@ import {
   SceneVariableSet,
   VariableValueControl,
 } from '@grafana/scenes';
+import { DataFrame } from '@grafana/data';
 import { PLUGIN_BASE_URL, ROUTES } from '../constants';
 import { hostQueries } from '../queries/hostQueries';
-import { equals } from '../queries/queryHelpers';
+import { equals, filterFragment } from '../queries/queryHelpers';
 import { promRunner, query } from './sceneHelpers';
 import { attachExploreMenus } from './panelExplore';
 import { applyVsphereDrilldownLinks } from './drilldownLinks';
 import { PanelTimeRangeCompare } from './panelTimeRangeCompare';
 import { applyClusterOrHostQuickOverviewOverrides } from './quickOverviewOverrides';
-import { InvestigateEntityButton } from './investigateEntityButton';
+import { EntityPageTitle } from './entityBadge';
+import { InfoCard, findFieldAcrossFrames } from './infoCard';
+import { UsageHealthBanner } from './healthBanner';
+import { customCellOptions, UsagePercentCell } from './tableCells';
 import React from 'react';
-import { Badge } from '@grafana/ui';
 import {
   HOST_VARIABLE_NAME,
   THANOS_VARIABLE_NAME,
   createHostFilterVariable,
   createThanosDatasourceVariable,
 } from '../variables/vsphereVariables';
+import { CLUSTERS_URL } from './clustersApp';
 
 export const HOSTS_URL = `${PLUGIN_BASE_URL}/${ROUTES.Hosts}`;
+
+const usagePercentOverride = customCellOptions(UsagePercentCell);
 
 function getHostsListScene() {
   const esxFilter = { esxhostname: '=~"$esxhostname"' };
@@ -41,7 +47,12 @@ function getHostsListScene() {
   const queryRunner = new SceneQueryRunner({
     datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
     queries: [
-      { refId: 'info', expr: `group by (vcenter, clustername, esxhostname) (vsphere_host_sys_uptime_latest{esxhostname=~"$esxhostname"})`, format: 'table', instant: true },
+      {
+        refId: 'info',
+        expr: `group by (vcenter, clustername, esxhostname) (vsphere_host_sys_uptime_latest{esxhostname=~"$esxhostname"})`,
+        format: 'table',
+        instant: true,
+      },
       { refId: 'uptime', expr: hostQueries.uptime(esxFilter), format: 'table', instant: true },
       { refId: 'cpu', expr: hostQueries.cpuUsagePercent(esxFilter), format: 'table', instant: true },
       { refId: 'mem', expr: hostQueries.ramUsagePercent(esxFilter), format: 'table', instant: true },
@@ -56,7 +67,14 @@ function getHostsListScene() {
         id: 'organize',
         options: {
           excludeByName: { Time: true, Value: true },
-          indexByName: { esxhostname: 0, clustername: 1, vcenter: 2, 'Value #uptime': 3, 'Value #cpu': 4, 'Value #mem': 5 },
+          indexByName: {
+            esxhostname: 0,
+            clustername: 1,
+            vcenter: 2,
+            'Value #uptime': 3,
+            'Value #cpu': 4,
+            'Value #mem': 5,
+          },
         },
       },
     ],
@@ -73,9 +91,11 @@ function getHostsListScene() {
         .matchFieldsWithName('Value #cpu')
         .overrideDisplayName('CPU %')
         .overrideUnit('percent')
+        .overrideCustomFieldConfig('cellOptions', usagePercentOverride)
         .matchFieldsWithName('Value #mem')
         .overrideDisplayName('RAM %')
         .overrideUnit('percent')
+        .overrideCustomFieldConfig('cellOptions', usagePercentOverride)
     )
     .build();
 
@@ -85,18 +105,27 @@ function getHostsListScene() {
   });
 }
 
-// Detail page ported 1:1 from /opt/vmware/hosts.json - same panel titles,
-// PromQL and units, scoped to this one host.
-//
-// One intentional deviation, fixing what looks like an authoring bug: the
-// source "Network Usage" panel's transmit-bytes query used
-// `vsphere_vm_net_bytesTx_average` (a *VM* metric) instead of
-// `vsphere_host_net_bytesTx_average`, while its own receive-bytes query
-// (and every other host-scoped panel here) correctly used a host metric -
-// fixed to match.
-function getHostDetailScene(host: string) {
+// Overview tab: health banner -> identity info card + Quick Overview stat
+// tile -> Virtual Machines table, same anatomy as the Cluster Drilldown.
+function getHostOverviewScene(host: string) {
   const f = { esxhostname: equals(host) };
   const q = hostQueries;
+
+  const identity = new SceneQueryRunner({
+    datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
+    queries: [
+      {
+        refId: 'info',
+        expr: `group by (vcenter, clustername, esxhostname) (vsphere_host_sys_uptime_latest{${filterFragment(f, ['esxhostname'])}})`,
+        format: 'table',
+        instant: true,
+      },
+    ],
+  });
+  const health = promRunner([query('cpu', q.cpuUsagePercent(f)), query('mem', q.ramUsagePercent(f))], {
+    instant: true,
+    format: 'table',
+  });
 
   const quickOverview = promRunner(
     [
@@ -108,6 +137,81 @@ function getHostDetailScene(host: string) {
     ],
     { instant: true }
   );
+
+  const vmTable = new SceneDataTransformer({
+    $data: new SceneQueryRunner({
+      datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
+      queries: [
+        { refId: 'mem', expr: q.vmMemUsageTable(f), format: 'table', instant: true },
+        { refId: 'cpu', expr: q.vmCpuUsageTable(f), format: 'table', instant: true },
+      ],
+    }),
+    transformations: [
+      { id: 'joinByField', options: { byField: 'vmname', mode: 'outer' } },
+      { id: 'organize', options: { excludeByName: { Time: true, esxhostname: true } } },
+    ],
+  });
+
+  return new EmbeddedScene({
+    $behaviors: [attachExploreMenus],
+    body: new SceneFlexLayout({
+      direction: 'column',
+      children: [
+        new SceneFlexItem({
+          ySizing: 'content',
+          body: new UsageHealthBanner({ subject: 'ESXi host', $data: health, cpuRefId: 'cpu', ramRefId: 'mem' }),
+        }),
+        new SceneFlexLayout({
+          direction: 'row',
+          height: 200,
+          children: [
+            new SceneFlexItem({
+              width: '25%',
+              body: new InfoCard({
+                title: 'Host information',
+                $data: identity,
+                rows: [
+                  { label: 'vCenter', fieldName: 'vcenter' },
+                  {
+                    label: 'Cluster',
+                    fieldName: 'clustername',
+                    href: (frames: DataFrame[]) => {
+                      const cluster = findFieldAcrossFrames(frames, 'clustername');
+                      return cluster ? `${CLUSTERS_URL}/${encodeURIComponent(cluster)}` : undefined;
+                    },
+                  },
+                ],
+              }),
+            }),
+            new SceneFlexItem({
+              width: '75%',
+              body: PanelBuilders.stat()
+                .setTitle('ESXi Host Quick Overview')
+                .setUnit('s')
+                .setData(quickOverview)
+                .setOverrides(applyClusterOrHostQuickOverviewOverrides)
+                .build(),
+            }),
+          ],
+        }),
+        new SceneFlexItem({
+          height: 300,
+          body: PanelBuilders.table()
+            .setTitle('Virtual Machines')
+            .setUnit('percent')
+            .setData(vmTable)
+            .setOverrides(applyVsphereDrilldownLinks)
+            .build(),
+        }),
+      ],
+    }),
+  });
+}
+
+// Performance tab: the host's detailed CPU/RAM/network/storage charts.
+function getHostPerformanceScene(host: string) {
+  const f = { esxhostname: equals(host) };
+  const q = hostQueries;
 
   const cpuByCpu = promRunner([query('A', q.cpuUtilizationAvgPercentByCpu(f), 'CPU Usage % {{cpu}}')]);
   const ramUtilization = promRunner([query('A', q.ramUtilizationPercent(f), 'RAM Usage %')]);
@@ -124,22 +228,14 @@ function getHostDetailScene(host: string) {
     query('A', q.storageAdapterReadIops(f), '{{adapter}} Read'),
     query('B', q.storageAdapterWriteIops(f), '{{adapter}} Write'),
   ]);
-  const vmTable = new SceneDataTransformer({
-    $data: new SceneQueryRunner({
-      datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
-      queries: [
-        { refId: 'mem', expr: q.vmMemUsageTable(f), format: 'table', instant: true },
-        { refId: 'cpu', expr: q.vmCpuUsageTable(f), format: 'table', instant: true },
-      ],
-    }),
-    transformations: [
-      { id: 'joinByField', options: { byField: 'vmname', mode: 'outer' } },
-      { id: 'organize', options: { excludeByName: { Time: true, esxhostname: true } } },
-    ],
-  });
 
   const ts = (title: string, unit: string, data: ReturnType<typeof promRunner>) =>
-    PanelBuilders.timeseries().setTitle(title).setUnit(unit).setData(data).setHeaderActions(new PanelTimeRangeCompare()).build();
+    PanelBuilders.timeseries()
+      .setTitle(title)
+      .setUnit(unit)
+      .setData(data)
+      .setHeaderActions(new PanelTimeRangeCompare())
+      .build();
 
   return new EmbeddedScene({
     $behaviors: [attachExploreMenus],
@@ -150,71 +246,44 @@ function getHostDetailScene(host: string) {
           direction: 'row',
           height: 260,
           children: [
-            new SceneFlexItem({
-              width: '12.5%',
-              body: PanelBuilders.stat()
-                .setTitle('ESXi VM Quick Overview')
-                .setUnit('s')
-                .setData(quickOverview)
-                .setOverrides(applyClusterOrHostQuickOverviewOverrides)
-                .build(),
-            }),
-            new SceneFlexItem({ width: '41.5%', body: ts('CPU Utilization Avg %', 'percent', cpuByCpu) }),
-            new SceneFlexItem({ width: '25%', body: ts('RAM Utilization', 'percent', ramUtilization) }),
-            new SceneFlexItem({ width: '21%', body: ts('CPU Ready in miliseconds', 'none', cpuReady) }),
+            new SceneFlexItem({ body: ts('CPU Utilization Avg %', 'percent', cpuByCpu) }),
+            new SceneFlexItem({ body: ts('RAM Utilization', 'percent', ramUtilization) }),
+            new SceneFlexItem({ body: ts('CPU Ready in miliseconds', 'none', cpuReady) }),
           ],
         }),
         new SceneFlexLayout({
           direction: 'row',
-          height: 460,
+          height: 260,
           children: [
-            new SceneFlexItem({
-              width: '54%',
-              body: PanelBuilders.table().setTitle('Virtual Machines').setUnit('percent').setData(vmTable).setOverrides(applyVsphereDrilldownLinks).build(),
-            }),
-            new SceneFlexItem({
-              width: '46%',
-              body: new SceneFlexLayout({
-                direction: 'column',
-                children: [
-                  new SceneFlexLayout({
-                    direction: 'row',
-                    children: [
-                      new SceneFlexItem({ body: ts('Total Disk Latency', 'none', diskLatency) }),
-                      new SceneFlexItem({ body: ts('Storage Adapter IOPS', 'short', storageIops) }),
-                    ],
-                  }),
-                  new SceneFlexItem({ body: ts('Network Usage', 'KBs', network) }),
-                ],
-              }),
-            }),
+            new SceneFlexItem({ body: ts('Total Disk Latency', 'none', diskLatency) }),
+            new SceneFlexItem({ body: ts('Storage Adapter IOPS', 'short', storageIops) }),
           ],
         }),
+        new SceneFlexItem({ height: 260, body: ts('Network Usage', 'KBs', network) }),
       ],
     }),
   });
 }
 
-function HostPageTitle({ title }: { title: string }) {
-  return (
-    <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
-      {title}
-      <Badge text="host" color="blue" />
-      <InvestigateEntityButton kind="host" name={title} host={title} />
-    </h1>
-  );
-}
-
 function getHostDetailPage(routeMatch: SceneRouteMatch<{ host: string }>, parent: SceneAppPageLike) {
   const host = decodeURIComponent(routeMatch.params.host);
+  const baseUrl = `${HOSTS_URL}/${encodeURIComponent(host)}`;
+
+  const tabs = [
+    { slug: 'overview', title: 'Overview', getScene: () => getHostOverviewScene(host) },
+    { slug: 'performance', title: 'Performance', getScene: () => getHostPerformanceScene(host) },
+  ].map(
+    (tab) =>
+      new SceneAppPage({ title: tab.title, url: `${baseUrl}/${tab.slug}`, routePath: tab.slug, getScene: tab.getScene })
+  );
 
   return new SceneAppPage({
     title: host,
-    renderTitle: (title) => <HostPageTitle title={title} />,
-    url: `${HOSTS_URL}/${encodeURIComponent(host)}`,
-    routePath: `${HOSTS_URL}/${encodeURIComponent(host)}`,
+    renderTitle: (title) => <EntityPageTitle title={title} investigate={{ kind: 'host', name: title, host: title }} />,
+    url: baseUrl,
+    routePath: baseUrl,
     getParentPage: () => parent,
-    getScene: () => getHostDetailScene(host),
+    tabs,
     $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
     $variables: new SceneVariableSet({ variables: [createThanosDatasourceVariable()] }),
     controls: [

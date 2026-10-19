@@ -11,7 +11,16 @@ describe('Components/App', () => {
     const sceneApp = getVmwareSceneApp();
     const titles = sceneApp.state.pages.map((p) => p.state.title);
 
-    expect(titles).toEqual(['Search', 'Overview', 'Clusters', 'Hosts', 'Virtual Machines']);
+    expect(titles).toEqual(['Search', 'Overview', 'vCenters', 'Clusters', 'Hosts', 'Virtual Machines']);
+  });
+
+  test('vcenters page exposes a vcenter drilldown', () => {
+    const sceneApp = getVmwareSceneApp();
+    const vcentersPage = sceneApp.state.pages.find((p) => p.state.title === 'vCenters')!;
+
+    expect(vcentersPage.state.url).toBe('/a/debeka-vmware-app/vcenters');
+    expect(vcentersPage.state.drilldowns).toHaveLength(1);
+    expect(vcentersPage.state.drilldowns?.[0].routePath).toBe('/:vcenter/*');
   });
 
   test('clusters page exposes a cluster drilldown', () => {

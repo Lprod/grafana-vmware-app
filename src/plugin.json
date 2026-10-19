@@ -32,6 +32,12 @@
     },
     {
       "type": "page",
+      "name": "vCenters",
+      "path": "/a/%PLUGIN_ID%/vcenters",
+      "addToNav": true
+    },
+    {
+      "type": "page",
       "name": "Clusters",
       "path": "/a/%PLUGIN_ID%/clusters",
       "addToNav": true

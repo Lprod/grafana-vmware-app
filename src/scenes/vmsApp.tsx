@@ -15,6 +15,7 @@ import {
   SceneVariableSet,
   VariableValueControl,
 } from '@grafana/scenes';
+import { DataFrame } from '@grafana/data';
 import { PLUGIN_BASE_URL, ROUTES } from '../constants';
 import { vmQueries } from '../queries/vmQueries';
 import { equals } from '../queries/queryHelpers';
@@ -23,17 +24,23 @@ import { attachExploreMenus } from './panelExplore';
 import { applyVsphereDrilldownLinks } from './drilldownLinks';
 import { PanelTimeRangeCompare } from './panelTimeRangeCompare';
 import { applyVmQuickOverviewOverrides } from './quickOverviewOverrides';
-import { InvestigateEntityButton } from './investigateEntityButton';
+import { EntityPageTitle } from './entityBadge';
+import { InfoCard, findFieldAcrossFrames } from './infoCard';
+import { UsageHealthBanner } from './healthBanner';
+import { customCellOptions, UsagePercentCell } from './tableCells';
 import React from 'react';
-import { Badge } from '@grafana/ui';
 import {
   THANOS_VARIABLE_NAME,
   VM_VARIABLE_NAME,
   createThanosDatasourceVariable,
   createVmFilterVariable,
 } from '../variables/vsphereVariables';
+import { CLUSTERS_URL } from './clustersApp';
+import { HOSTS_URL } from './hostsApp';
 
 export const VMS_URL = `${PLUGIN_BASE_URL}/${ROUTES.VMs}`;
+
+const usagePercentOverride = customCellOptions(UsagePercentCell);
 
 function getVmsListScene() {
   const vmFilter = { vmname: '=~"$vmname"' };
@@ -83,12 +90,15 @@ function getVmsListScene() {
         .matchFieldsWithName('Value #cpu')
         .overrideDisplayName('CPU %')
         .overrideUnit('percent')
+        .overrideCustomFieldConfig('cellOptions', usagePercentOverride)
         .matchFieldsWithName('Value #mem')
         .overrideDisplayName('RAM %')
         .overrideUnit('percent')
+        .overrideCustomFieldConfig('cellOptions', usagePercentOverride)
         .matchFieldsWithName('Value #ready')
         .overrideDisplayName('CPU ready %')
         .overrideUnit('percent')
+        .overrideCustomFieldConfig('cellOptions', usagePercentOverride)
     )
     .build();
 
@@ -98,29 +108,18 @@ function getVmsListScene() {
   });
 }
 
-// Identity stat tile ported from vm.json's panel-15..19: each is its own
-// `format: table, instant: true` query against the raw metric selector (so
-// every label - vcenter/clustername/esxhostname/vmname/guest - comes back as
-// its own column), reduced down to just the one label named in `field`.
-function identityTile(title: string, field: string, data: ReturnType<typeof promRunner>) {
-  return PanelBuilders.stat()
-    .setTitle(title)
-    .setOption('reduceOptions' as any, { calcs: ['lastNotNull'], fields: `/^${field}$/`, values: false } as any)
-    .setData(data)
-    .build();
-}
-
-// Detail page ported 1:1 from /opt/vmware/vm.json - same panel titles,
-// PromQL and units, scoped to this one VM.
-function getVmDetailScene(vm: string) {
+// Overview tab: health banner -> identity info card (replacing the 5
+// separate VCENTER/CLUSTERNAME/ESXHOSTNAME/VMNAME/OSNAME stat tiles with one
+// card) + Quick Overview stat tile.
+function getVmOverviewScene(vm: string) {
   const f = { vmname: equals(vm) };
   const q = vmQueries;
 
-  const vcenterRow = promRunner([query('A', q.identityRow(f))], { instant: true, format: 'table' });
-  const clusterRow = promRunner([query('A', q.identityRow(f))], { instant: true, format: 'table' });
-  const hostRow = promRunner([query('A', q.identityRow(f))], { instant: true, format: 'table' });
-  const vmRow = promRunner([query('A', q.identityRow(f))], { instant: true, format: 'table' });
-  const osRow = promRunner([query('A', q.identityRow(f))], { instant: true, format: 'table' });
+  const identity = promRunner([query('A', q.identityRow(f))], { instant: true, format: 'table' });
+  const health = promRunner(
+    [query('cpu', q.cpuUsagePercent(f)), query('mem', q.ramUsagePercent(f)), query('ready', q.cpuReadyPercent(f))],
+    { instant: true, format: 'table' }
+  );
 
   const quickOverview = promRunner(
     [
@@ -132,6 +131,72 @@ function getVmDetailScene(vm: string) {
     ],
     { instant: true }
   );
+
+  return new EmbeddedScene({
+    $behaviors: [attachExploreMenus],
+    body: new SceneFlexLayout({
+      direction: 'column',
+      children: [
+        new SceneFlexItem({
+          ySizing: 'content',
+          body: new UsageHealthBanner({
+            subject: 'Virtual machine',
+            $data: health,
+            cpuRefId: 'cpu',
+            ramRefId: 'mem',
+            readyRefId: 'ready',
+          }),
+        }),
+        new SceneFlexLayout({
+          direction: 'row',
+          height: 220,
+          children: [
+            new SceneFlexItem({
+              width: '33%',
+              body: new InfoCard({
+                title: 'VM information',
+                $data: identity,
+                rows: [
+                  { label: 'Guest OS', fieldName: 'guest' },
+                  { label: 'vCenter', fieldName: 'vcenter' },
+                  {
+                    label: 'Cluster',
+                    fieldName: 'clustername',
+                    href: (frames: DataFrame[]) => {
+                      const cluster = findFieldAcrossFrames(frames, 'clustername');
+                      return cluster ? `${CLUSTERS_URL}/${encodeURIComponent(cluster)}` : undefined;
+                    },
+                  },
+                  {
+                    label: 'ESXi host',
+                    fieldName: 'esxhostname',
+                    href: (frames: DataFrame[]) => {
+                      const host = findFieldAcrossFrames(frames, 'esxhostname');
+                      return host ? `${HOSTS_URL}/${encodeURIComponent(host)}` : undefined;
+                    },
+                  },
+                ],
+              }),
+            }),
+            new SceneFlexItem({
+              width: '67%',
+              body: PanelBuilders.stat()
+                .setTitle('VM Quick Overview')
+                .setData(quickOverview)
+                .setOverrides(applyVmQuickOverviewOverrides)
+                .build(),
+            }),
+          ],
+        }),
+      ],
+    }),
+  });
+}
+
+// Performance tab: the VM's CPU/RAM/network/storage charts.
+function getVmPerformanceScene(vm: string) {
+  const f = { vmname: equals(vm) };
+  const q = vmQueries;
 
   const cpuUsage = promRunner([
     query('A', q.cpuReadyPercent(f), 'CPU Ready %'),
@@ -149,7 +214,12 @@ function getVmDetailScene(vm: string) {
   ]);
 
   const ts = (title: string, unit: string, data: ReturnType<typeof promRunner>) =>
-    PanelBuilders.timeseries().setTitle(title).setUnit(unit).setData(data).setHeaderActions(new PanelTimeRangeCompare()).build();
+    PanelBuilders.timeseries()
+      .setTitle(title)
+      .setUnit(unit)
+      .setData(data)
+      .setHeaderActions(new PanelTimeRangeCompare())
+      .build();
 
   return new EmbeddedScene({
     $behaviors: [attachExploreMenus],
@@ -158,38 +228,19 @@ function getVmDetailScene(vm: string) {
       children: [
         new SceneFlexLayout({
           direction: 'row',
-          height: 90,
-          children: [
-            new SceneFlexItem({ width: '25%', body: identityTile('VCENTER', 'vcenter', vcenterRow) }),
-            new SceneFlexItem({ width: '17%', body: identityTile('CLUSTERNAME', 'clustername', clusterRow) }),
-            new SceneFlexItem({ width: '25%', body: identityTile('ESXHOSTNAME', 'esxhostname', hostRow) }),
-            new SceneFlexItem({ width: '17%', body: identityTile('VMNAME', 'vmname', vmRow) }),
-            new SceneFlexItem({ width: '16%', body: identityTile('OSNAME', 'guest', osRow) }),
-          ],
-        }),
-        new SceneFlexLayout({
-          direction: 'row',
           height: 260,
           children: [
-            new SceneFlexItem({
-              width: '25%',
-              body: PanelBuilders.stat()
-                .setTitle('VM Quick Overview')
-                .setData(quickOverview)
-                .setOverrides(applyVmQuickOverviewOverrides)
-                .build(),
-            }),
-            new SceneFlexItem({ width: '29%', body: ts('CPU Usage in %', 'percent', cpuUsage) }),
-            new SceneFlexItem({ width: '25%', body: ts('RAM Utilization', 'percent', ramUsage) }),
-            new SceneFlexItem({ width: '21%', body: ts('CPU Ready in miliseconds', '', cpuReadyMs) }),
+            new SceneFlexItem({ body: ts('CPU Usage in %', 'percent', cpuUsage) }),
+            new SceneFlexItem({ body: ts('RAM Utilization', 'percent', ramUsage) }),
+            new SceneFlexItem({ body: ts('CPU Ready in miliseconds', '', cpuReadyMs) }),
           ],
         }),
         new SceneFlexLayout({
           direction: 'row',
           height: 300,
           children: [
-            new SceneFlexItem({ width: '54%', body: ts('Network Usage', 'KBs', network) }),
-            new SceneFlexItem({ width: '46%', body: ts('Total Disk Latency', 'ms', diskLatency) }),
+            new SceneFlexItem({ body: ts('Network Usage', 'KBs', network) }),
+            new SceneFlexItem({ body: ts('Total Disk Latency', 'ms', diskLatency) }),
           ],
         }),
       ],
@@ -197,26 +248,25 @@ function getVmDetailScene(vm: string) {
   });
 }
 
-function VmPageTitle({ title }: { title: string }) {
-  return (
-    <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
-      {title}
-      <Badge text="vm" color="blue" />
-      <InvestigateEntityButton kind="vm" name={title} />
-    </h1>
-  );
-}
-
 function getVmDetailPage(routeMatch: SceneRouteMatch<{ vm: string }>, parent: SceneAppPageLike) {
   const vm = decodeURIComponent(routeMatch.params.vm);
+  const baseUrl = `${VMS_URL}/${encodeURIComponent(vm)}`;
+
+  const tabs = [
+    { slug: 'overview', title: 'Overview', getScene: () => getVmOverviewScene(vm) },
+    { slug: 'performance', title: 'Performance', getScene: () => getVmPerformanceScene(vm) },
+  ].map(
+    (tab) =>
+      new SceneAppPage({ title: tab.title, url: `${baseUrl}/${tab.slug}`, routePath: tab.slug, getScene: tab.getScene })
+  );
 
   return new SceneAppPage({
     title: vm,
-    renderTitle: (title) => <VmPageTitle title={title} />,
-    url: `${VMS_URL}/${encodeURIComponent(vm)}`,
-    routePath: `${VMS_URL}/${encodeURIComponent(vm)}`,
+    renderTitle: (title) => <EntityPageTitle title={title} investigate={{ kind: 'vm', name: title }} />,
+    url: baseUrl,
+    routePath: baseUrl,
     getParentPage: () => parent,
-    getScene: () => getVmDetailScene(vm),
+    tabs,
     $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
     $variables: new SceneVariableSet({ variables: [createThanosDatasourceVariable()] }),
     controls: [

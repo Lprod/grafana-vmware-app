@@ -12,6 +12,11 @@ test.describe('navigating app', () => {
     await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
   });
 
+  test('vcenters page should render successfully', async ({ gotoPage, page }) => {
+    await gotoPage(`/${ROUTES.VCenters}`);
+    await expect(page.getByRole('heading', { name: 'vCenters' })).toBeVisible();
+  });
+
   test('clusters page should render successfully', async ({ gotoPage, page }) => {
     await gotoPage(`/${ROUTES.Clusters}`);
     await expect(page.getByRole('heading', { name: 'Clusters' })).toBeVisible();

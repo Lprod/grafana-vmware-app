@@ -5,6 +5,7 @@ export const PLUGIN_BASE_URL = `/a/${pluginJson.id}`;
 export enum ROUTES {
   Search = 'search',
   Overview = 'overview',
+  VCenters = 'vcenters',
   Clusters = 'clusters',
   Hosts = 'hosts',
   VMs = 'vms',

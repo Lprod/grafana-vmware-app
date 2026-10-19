@@ -1,11 +1,11 @@
 import React from 'react';
 import { DisplayValue } from '@grafana/data';
+import { TableCellDisplayMode } from '@grafana/schema';
 import { CustomCellRendererProps, useTheme2 } from '@grafana/ui';
 import usageLowIcon from '../img/usage-low.png';
 import usageMedIcon from '../img/usage-med.png';
 import usageHighIcon from '../img/usage-high.png';
-
-export type UsageTier = 'low' | 'med' | 'high' | 'unknown';
+import { UsageTier, usageTierFromPercent } from './designSystem';
 
 const TIER_ICON: Record<Exclude<UsageTier, 'unknown'>, string> = {
   low: usageLowIcon,
@@ -13,31 +13,12 @@ const TIER_ICON: Record<Exclude<UsageTier, 'unknown'>, string> = {
   high: usageHighIcon,
 };
 
-export function usageTierFromFraction(fraction: number | null | undefined): UsageTier {
-  if (fraction === null || fraction === undefined || Number.isNaN(fraction)) {
-    return 'unknown';
-  }
-  if (fraction >= 0.8) {
-    return 'high';
-  }
-  if (fraction >= 0.5) {
-    return 'med';
-  }
-  return 'low';
-}
-
-// Grafana's Table panel only supports coloring a cell from its own field's
-// thresholds, but we want the absolute column (e.g. "CPU Avg") to match the
-// color of its percentage sibling ("CPU Avg %") in the same row. A custom
-// cell renderer is the only way to read another field's value for the same
-// row, so we look up the percent field by name and color by its value
-// instead of this field's own value.
 export function usageColorFromTier(theme: ReturnType<typeof useTheme2>, tier: UsageTier) {
   switch (tier) {
     case 'high':
       return theme.visualization.getColorByName('red');
     case 'med':
-      return theme.visualization.getColorByName('yellow');
+      return theme.visualization.getColorByName('orange');
     case 'low':
       return theme.visualization.getColorByName('green');
     default:
@@ -80,23 +61,38 @@ export function UsageIcon({ tier, size = 14 }: { tier: UsageTier; size?: number 
   );
 }
 
-function findFraction(frame: CustomCellRendererProps['frame'], rowIndex: number, fieldName: string) {
-  const field = frame.fields.find((f) => f.name === fieldName);
-  return field ? (field.values[rowIndex] as number | null | undefined) : undefined;
+// Combined meter cell for this app's percent columns (CPU %, RAM %, CPU
+// Ready %): the formatted value, tier-colored, over a thin proportional bar
+// underneath - debeka-k8s-app's signature "value + color + bar" table
+// pattern (`requestUsageCell`), adapted for a column that's already a
+// percentage itself rather than a value/percent column pair.
+export function UsagePercentCell({ field, value }: CustomCellRendererProps) {
+  const theme = useTheme2();
+  const percent = typeof value === 'number' ? value : null;
+  const tier = usageTierFromPercent(percent);
+  const color = usageColorFromTier(theme, tier);
+  const display = field.display ? field.display(value) : { text: String(value ?? '') };
+  const barWidth = Math.max(0, Math.min(100, percent ?? 0));
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '100%', padding: '4px 0' }}>
+      <span style={{ color, fontWeight: 500 }}>{formatDisplay(display)}</span>
+      <div
+        style={{
+          height: 4,
+          borderRadius: 2,
+          background: theme.colors.background.secondary,
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ height: '100%', width: `${barWidth}%`, background: color, borderRadius: 2 }} />
+      </div>
+    </div>
+  );
 }
 
-export function linkedValueCell(percentFieldName: string) {
-  return function LinkedValueCell({ field, rowIndex, frame, value }: CustomCellRendererProps) {
-    const theme = useTheme2();
-    const tier = usageTierFromFraction(findFraction(frame, rowIndex, percentFieldName));
-    const color = usageColorFromTier(theme, tier);
-    const display = field.display ? field.display(value) : { text: String(value ?? '') };
-
-    return (
-      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <UsageIcon tier={tier} />
-        <span style={{ color }}>{formatDisplay(display)}</span>
-      </span>
-    );
-  };
+// Field-override shorthand for wiring a custom cell renderer onto a Table
+// panel column: `.overrideCustomFieldConfig('cellOptions', customCellOptions(UsagePercentCell))`.
+export function customCellOptions(cellComponent: React.FC<CustomCellRendererProps>) {
+  return { type: TableCellDisplayMode.Custom as const, cellComponent };
 }

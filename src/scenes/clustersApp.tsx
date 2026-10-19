@@ -17,15 +17,17 @@ import {
 } from '@grafana/scenes';
 import { PLUGIN_BASE_URL, ROUTES } from '../constants';
 import { clusterQueries } from '../queries/clusterQueries';
-import { equals } from '../queries/queryHelpers';
+import { equals, filterFragment } from '../queries/queryHelpers';
 import { promRunner, query } from './sceneHelpers';
 import { attachExploreMenus } from './panelExplore';
 import { applyVsphereDrilldownLinks } from './drilldownLinks';
 import { PanelTimeRangeCompare } from './panelTimeRangeCompare';
 import { applyClusterOrHostQuickOverviewOverrides } from './quickOverviewOverrides';
-import { InvestigateEntityButton } from './investigateEntityButton';
+import { EntityPageTitle } from './entityBadge';
+import { InfoCard } from './infoCard';
+import { UsageHealthBanner } from './healthBanner';
+import { customCellOptions, UsagePercentCell } from './tableCells';
 import React from 'react';
-import { Badge } from '@grafana/ui';
 import {
   CLUSTER_VARIABLE_NAME,
   THANOS_VARIABLE_NAME,
@@ -35,14 +37,36 @@ import {
 
 export const CLUSTERS_URL = `${PLUGIN_BASE_URL}/${ROUTES.Clusters}`;
 
+const usagePercentOverride = customCellOptions(UsagePercentCell);
+
 function getClustersListScene() {
   const queryRunner = new SceneQueryRunner({
     datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
     queries: [
-      { refId: 'info', expr: `count by (vcenter, clustername) (vsphere_host_sys_uptime_latest{clustername=~"$clustername"})`, format: 'table', instant: true },
-      { refId: 'uptime', expr: clusterQueries.uptime({ clustername: '=~"$clustername"' }), format: 'table', instant: true },
-      { refId: 'cpu', expr: clusterQueries.cpuUsagePercent({ clustername: '=~"$clustername"' }), format: 'table', instant: true },
-      { refId: 'mem', expr: clusterQueries.ramUsagePercent({ clustername: '=~"$clustername"' }), format: 'table', instant: true },
+      {
+        refId: 'info',
+        expr: `count by (vcenter, clustername) (vsphere_host_sys_uptime_latest{clustername=~"$clustername"})`,
+        format: 'table',
+        instant: true,
+      },
+      {
+        refId: 'uptime',
+        expr: clusterQueries.uptime({ clustername: '=~"$clustername"' }),
+        format: 'table',
+        instant: true,
+      },
+      {
+        refId: 'cpu',
+        expr: clusterQueries.cpuUsagePercent({ clustername: '=~"$clustername"' }),
+        format: 'table',
+        instant: true,
+      },
+      {
+        refId: 'mem',
+        expr: clusterQueries.ramUsagePercent({ clustername: '=~"$clustername"' }),
+        format: 'table',
+        instant: true,
+      },
     ],
   });
 
@@ -54,7 +78,14 @@ function getClustersListScene() {
         id: 'organize',
         options: {
           excludeByName: { Time: true },
-          indexByName: { clustername: 0, vcenter: 1, 'Value #info': 2, 'Value #uptime': 3, 'Value #cpu': 4, 'Value #mem': 5 },
+          indexByName: {
+            clustername: 0,
+            vcenter: 1,
+            'Value #info': 2,
+            'Value #uptime': 3,
+            'Value #cpu': 4,
+            'Value #mem': 5,
+          },
         },
       },
     ],
@@ -74,9 +105,11 @@ function getClustersListScene() {
         .matchFieldsWithName('Value #cpu')
         .overrideDisplayName('CPU %')
         .overrideUnit('percent')
+        .overrideCustomFieldConfig('cellOptions', usagePercentOverride)
         .matchFieldsWithName('Value #mem')
         .overrideDisplayName('RAM %')
         .overrideUnit('percent')
+        .overrideCustomFieldConfig('cellOptions', usagePercentOverride)
     )
     .build();
 
@@ -86,20 +119,28 @@ function getClustersListScene() {
   });
 }
 
-// Detail page ported 1:1 from /opt/vmware/cluster.json - same panel titles,
-// PromQL and units, scoped down to this one cluster (the source dashboard
-// scopes by both `$vcenter` and `$cluster`; this page is reached via just a
-// cluster-name route param, so it's scoped by `clustername` alone).
-//
-// Two intentional deviations from the source JSON, both fixing what look
-// like authoring bugs rather than app-specific redesigns:
-// - panel-28's "RAM Usage" query hardcoded a literal
-//   vcenter="vmware-entw-web.services.debeka.de"/clustername="HRVPEN01"
-//   instead of using the same $vcenter/$cluster scoping as its four sibling
-//   queries in the same panel - fixed to match.
-function getClusterDetailScene(cluster: string) {
+// Overview tab: health banner -> identity info card + Quick Overview stat
+// tile -> Hosts table, the same "banner -> info cards -> child-entity table"
+// anatomy debeka-k8s-app uses on every drilldown's Overview tab.
+function getClusterOverviewScene(cluster: string) {
   const f = { clustername: equals(cluster) };
   const q = clusterQueries;
+
+  const identity = new SceneQueryRunner({
+    datasource: { uid: `\${${THANOS_VARIABLE_NAME}}` },
+    queries: [
+      {
+        refId: 'info',
+        expr: `count by (vcenter, clustername) (vsphere_host_sys_uptime_latest{${filterFragment(f, ['clustername'])}})`,
+        format: 'table',
+        instant: true,
+      },
+    ],
+  });
+  const health = promRunner([query('cpu', q.cpuUsagePercent(f)), query('mem', q.ramUsagePercent(f))], {
+    instant: true,
+    format: 'table',
+  });
 
   const quickOverview = promRunner(
     [
@@ -112,6 +153,65 @@ function getClusterDetailScene(cluster: string) {
     { instant: true }
   );
 
+  const hostUptimeTable = new SceneDataTransformer({
+    $data: promRunner([query('A', q.hostUptimeTable(f))], { instant: true, format: 'table' }),
+    transformations: [{ id: 'organize', options: { excludeByName: { Time: true, Value: true } } }],
+  });
+
+  return new EmbeddedScene({
+    $behaviors: [attachExploreMenus],
+    body: new SceneFlexLayout({
+      direction: 'column',
+      children: [
+        new SceneFlexItem({
+          ySizing: 'content',
+          body: new UsageHealthBanner({ subject: 'Cluster', $data: health, cpuRefId: 'cpu', ramRefId: 'mem' }),
+        }),
+        new SceneFlexLayout({
+          direction: 'row',
+          height: 200,
+          children: [
+            new SceneFlexItem({
+              width: '25%',
+              body: new InfoCard({
+                title: 'Cluster information',
+                $data: identity,
+                rows: [
+                  { label: 'vCenter', fieldName: 'vcenter' },
+                  { label: 'Hosts', refId: 'info' },
+                ],
+              }),
+            }),
+            new SceneFlexItem({
+              width: '75%',
+              body: PanelBuilders.stat()
+                .setTitle('Cluster Quick Overview')
+                .setUnit('s')
+                .setData(quickOverview)
+                .setOverrides(applyClusterOrHostQuickOverviewOverrides)
+                .build(),
+            }),
+          ],
+        }),
+        new SceneFlexItem({
+          height: 300,
+          body: PanelBuilders.table()
+            .setTitle('Hosts')
+            .setUnit('s')
+            .setData(hostUptimeTable)
+            .setOverrides(applyVsphereDrilldownLinks)
+            .build(),
+        }),
+      ],
+    }),
+  });
+}
+
+// Performance tab: the cluster's detailed capacity/IOPS/network charts.
+function getClusterPerformanceScene(cluster: string) {
+  const f = { clustername: equals(cluster) };
+  const q = clusterQueries;
+
   const storageIops = promRunner([
     query('A', q.storageAdapterReadIops(f), '{{adapter}} Read'),
     query('B', `${q.storageAdapterWriteIops(f)} * -1`, '{{adapter}} Write'),
@@ -121,10 +221,6 @@ function getClusterDetailScene(cluster: string) {
     query('A', q.networkBytesRxByInterface(f), '{{interface}} bytesRx'),
     query('B', q.networkBytesTxByInterface(f), '{{interface}} bytesTx'),
   ]);
-  const hostUptimeTable = new SceneDataTransformer({
-    $data: promRunner([query('A', q.hostUptimeTable(f))], { instant: true, format: 'table' }),
-    transformations: [{ id: 'organize', options: { excludeByName: { Time: true, Value: true } } }],
-  });
   const cpuWorkload = promRunner([query('A', q.cpuWorkloadVsOneDatacenter(f), 'CPU Workload')]);
   const capacityVsOne = promRunner([
     query('A', q.cpuFailoverCapacity(f), 'CPU Failover Capacity'),
@@ -136,7 +232,12 @@ function getClusterDetailScene(cluster: string) {
   ]);
 
   const ts = (title: string, unit: string, data: ReturnType<typeof promRunner>) =>
-    PanelBuilders.timeseries().setTitle(title).setUnit(unit).setData(data).setHeaderActions(new PanelTimeRangeCompare()).build();
+    PanelBuilders.timeseries()
+      .setTitle(title)
+      .setUnit(unit)
+      .setData(data)
+      .setHeaderActions(new PanelTimeRangeCompare())
+      .build();
 
   return new EmbeddedScene({
     $behaviors: [attachExploreMenus],
@@ -147,64 +248,49 @@ function getClusterDetailScene(cluster: string) {
           direction: 'row',
           height: 260,
           children: [
-            new SceneFlexItem({
-              width: '25%',
-              body: PanelBuilders.stat()
-                .setTitle('Cluster Quick Overview')
-                .setUnit('s')
-                .setData(quickOverview)
-                .setOverrides(applyClusterOrHostQuickOverviewOverrides)
-                .build(),
-            }),
-            new SceneFlexItem({ width: '75%', body: ts('Storage Adapter IOPS', 'short', storageIops) }),
+            new SceneFlexItem({ body: ts('Storage Adapter IOPS', 'short', storageIops) }),
+            new SceneFlexItem({ body: ts('CPU Ready in percent per host', 'none', cpuReadyByHost) }),
           ],
         }),
-        new SceneFlexLayout({
-          direction: 'row',
+        new SceneFlexItem({ height: 260, body: ts('Network Usage', 'KBs', network) }),
+        new SceneFlexItem({
           height: 260,
-          children: [
-            new SceneFlexItem({ width: '25%', body: ts('CPU Ready in percent per host', 'none', cpuReadyByHost) }),
-            new SceneFlexItem({ width: '75%', body: ts('Network Usage', 'KBs', network) }),
-          ],
+          body: ts('CPU Auslastung im Vergleich zu einem RZ (CPU Workload)', 'percent', cpuWorkload),
         }),
-        new SceneFlexLayout({
-          direction: 'row',
+        new SceneFlexItem({
           height: 260,
-          children: [
-            new SceneFlexItem({
-              width: '25%',
-              body: PanelBuilders.table().setTitle('').setUnit('s').setData(hostUptimeTable).setOverrides(applyVsphereDrilldownLinks).build(),
-            }),
-            new SceneFlexItem({ width: '75%', body: ts('CPU Auslastung im Vergleich zu einem RZ (CPU Workload)', 'percent', cpuWorkload) }),
-          ],
+          body: ts('Kapazitätsnutzung im Vergleich zu einem RZ', 'MHz', capacityVsOne),
         }),
-        new SceneFlexItem({ height: 260, body: ts('Kapazitätsnutzung im Vergleich zu einem RZ', 'MHz', capacityVsOne) }),
-        new SceneFlexItem({ height: 260, body: ts('Kapazitätsnutzung im Vergleich zu beiden RZs', 'MHz', capacityVsBoth) }),
+        new SceneFlexItem({
+          height: 260,
+          body: ts('Kapazitätsnutzung im Vergleich zu beiden RZs', 'MHz', capacityVsBoth),
+        }),
       ],
     }),
   });
 }
 
-function ClusterPageTitle({ title }: { title: string }) {
-  return (
-    <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
-      {title}
-      <Badge text="cluster" color="blue" />
-      <InvestigateEntityButton kind="cluster" name={title} cluster={title} />
-    </h1>
-  );
-}
-
 function getClusterDetailPage(routeMatch: SceneRouteMatch<{ cluster: string }>, parent: SceneAppPageLike) {
   const cluster = decodeURIComponent(routeMatch.params.cluster);
+  const baseUrl = `${CLUSTERS_URL}/${encodeURIComponent(cluster)}`;
+
+  const tabs = [
+    { slug: 'overview', title: 'Overview', getScene: () => getClusterOverviewScene(cluster) },
+    { slug: 'performance', title: 'Performance', getScene: () => getClusterPerformanceScene(cluster) },
+  ].map(
+    (tab) =>
+      new SceneAppPage({ title: tab.title, url: `${baseUrl}/${tab.slug}`, routePath: tab.slug, getScene: tab.getScene })
+  );
 
   return new SceneAppPage({
     title: cluster,
-    renderTitle: (title) => <ClusterPageTitle title={title} />,
-    url: `${CLUSTERS_URL}/${encodeURIComponent(cluster)}`,
-    routePath: `${CLUSTERS_URL}/${encodeURIComponent(cluster)}`,
+    renderTitle: (title) => (
+      <EntityPageTitle title={title} investigate={{ kind: 'cluster', name: title, cluster: title }} />
+    ),
+    url: baseUrl,
+    routePath: baseUrl,
     getParentPage: () => parent,
-    getScene: () => getClusterDetailScene(cluster),
+    tabs,
     $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
     $variables: new SceneVariableSet({ variables: [createThanosDatasourceVariable()] }),
     controls: [
@@ -234,7 +320,14 @@ export function getClustersPage() {
       new SceneTimePicker({}),
       new SceneRefreshPicker({ refresh: '1m' }),
     ],
-    preserveUrlKeys: ['from', 'to', 'timezone', 'refresh', `var-${THANOS_VARIABLE_NAME}`, `var-${CLUSTER_VARIABLE_NAME}`],
+    preserveUrlKeys: [
+      'from',
+      'to',
+      'timezone',
+      'refresh',
+      `var-${THANOS_VARIABLE_NAME}`,
+      `var-${CLUSTER_VARIABLE_NAME}`,
+    ],
     drilldowns: [{ routePath: '/:cluster/*', getPage: getClusterDetailPage }],
   });
 }

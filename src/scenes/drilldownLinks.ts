@@ -1,13 +1,15 @@
 import { FieldConfigOverridesBuilder } from '@grafana/scenes';
 import { PLUGIN_BASE_URL, ROUTES } from '../constants';
 
+const VCENTERS_URL = `${PLUGIN_BASE_URL}/${ROUTES.VCenters}`;
 const CLUSTERS_URL = `${PLUGIN_BASE_URL}/${ROUTES.Clusters}`;
 const HOSTS_URL = `${PLUGIN_BASE_URL}/${ROUTES.Hosts}`;
 const VMS_URL = `${PLUGIN_BASE_URL}/${ROUTES.VMs}`;
 
 /**
  * Adds this app's standard Drilldown links to whichever of the
- * `clustername`/`esxhostname`/`vmname` columns a table actually has.
+ * `vcenter`/`clustername`/`esxhostname`/`vmname` columns a table actually
+ * has.
  *
  * Matched on the raw Prometheus label name, not a column's displayed header,
  * so a `matchFieldsWithName` for a column the current query doesn't return
@@ -17,6 +19,8 @@ const VMS_URL = `${PLUGIN_BASE_URL}/${ROUTES.VMs}`;
  */
 export function applyVsphereDrilldownLinks(b: FieldConfigOverridesBuilder<any>) {
   return b
+    .matchFieldsWithName('vcenter')
+    .overrideLinks([{ title: 'View vCenter', url: `${VCENTERS_URL}/\${__value.text}\${__url.params}` }])
     .matchFieldsWithName('clustername')
     .overrideLinks([{ title: 'View cluster', url: `${CLUSTERS_URL}/\${__value.text}\${__url.params}` }])
     .matchFieldsWithName('esxhostname')
