@@ -67,7 +67,7 @@ function getVmsListScene() {
       {
         id: 'organize',
         options: {
-          excludeByName: { Time: true, Value: true },
+          excludeByName: { Time: true, 'Value #info': true },
           indexByName: {
             vmname: 0,
             esxhostname: 1,

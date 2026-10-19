@@ -8,8 +8,11 @@ import { filterFragment, VsphereFilters } from './queryHelpers';
 export const vcenterQueries = {
   clusterCount: (f: VsphereFilters) =>
     `count by (vcenter) (count by (vcenter, clustername) (vsphere_host_cpu_totalCapacity_average{${filterFragment(f, ['vcenter'])}}))`,
+  // vsphere_host_cpu_totalCapacity_average carries no `cpu` label (unlike
+  // vsphere_host_cpu_usage_average) - it's already one row per host, no
+  // instance-total filter needed or possible.
   hostCount: (f: VsphereFilters) =>
-    `count by (vcenter) (vsphere_host_cpu_totalCapacity_average{${filterFragment(f, ['vcenter'])}, cpu="instance-total"})`,
+    `count by (vcenter) (vsphere_host_cpu_totalCapacity_average{${filterFragment(f, ['vcenter'])}})`,
   vmCount: (f: VsphereFilters) =>
     `count by (vcenter) (vsphere_vm_mem_usage_average{${filterFragment(f, ['vcenter'])}})`,
   cpuUsagePercent: (f: VsphereFilters) =>

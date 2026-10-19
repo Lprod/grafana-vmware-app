@@ -66,7 +66,7 @@ function getHostsListScene() {
       {
         id: 'organize',
         options: {
-          excludeByName: { Time: true, Value: true },
+          excludeByName: { Time: true, 'Value #info': true },
           indexByName: {
             esxhostname: 0,
             clustername: 1,
@@ -198,9 +198,18 @@ function getHostOverviewScene(host: string) {
           height: 300,
           body: PanelBuilders.table()
             .setTitle('Virtual Machines')
-            .setUnit('percent')
             .setData(vmTable)
-            .setOverrides(applyVsphereDrilldownLinks)
+            .setOverrides((b) =>
+              applyVsphereDrilldownLinks(b)
+                .matchFieldsWithName('Value #mem')
+                .overrideDisplayName('RAM %')
+                .overrideUnit('percent')
+                .overrideCustomFieldConfig('cellOptions', usagePercentOverride)
+                .matchFieldsWithName('Value #cpu')
+                .overrideDisplayName('CPU %')
+                .overrideUnit('percent')
+                .overrideCustomFieldConfig('cellOptions', usagePercentOverride)
+            )
             .build(),
         }),
       ],

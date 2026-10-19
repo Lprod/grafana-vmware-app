@@ -5,16 +5,22 @@
 import { filterFragment, VsphereFilters } from './queryHelpers';
 
 export const clusterQueries = {
+  // `by (clustername)` so this still returns one row per cluster on the
+  // list page (see cpuUsagePercent/ramUsagePercent below for the same fix).
   uptime: (f: VsphereFilters) =>
-    `avg(vsphere_host_sys_uptime_latest{${filterFragment(f, ['vcenter', 'clustername'])}})`,
+    `avg by (clustername) (vsphere_host_sys_uptime_latest{${filterFragment(f, ['vcenter', 'clustername'])}})`,
   cpuUsageMhz: (f: VsphereFilters) =>
     `sum(vsphere_host_cpu_usagemhz_average{${filterFragment(f, ['vcenter', 'clustername'])}})`,
   ramUsageBytes: (f: VsphereFilters) =>
     `sum((vsphere_host_mem_totalCapacity_average{${filterFragment(f, ['vcenter', 'clustername'])}} / 100) * vsphere_host_mem_usage_average{${filterFragment(f, ['vcenter', 'clustername'])}}) * 1024`,
+  // `by (clustername)` so this still returns one row per cluster when `f`
+  // matches several (list-page `=~"$clustername"` usage) - without it, a
+  // multi-cluster selection collapsed into a single fleet-wide number with
+  // no `clustername` label left to join list-page columns on.
   cpuUsagePercent: (f: VsphereFilters) =>
-    `100 / sum(vsphere_host_cpu_totalCapacity_average{${filterFragment(f, ['vcenter', 'clustername'])}}) * sum(vsphere_host_cpu_usagemhz_average{${filterFragment(f, ['vcenter', 'clustername'])}})`,
+    `100 / sum by (clustername) (vsphere_host_cpu_totalCapacity_average{${filterFragment(f, ['vcenter', 'clustername'])}}) * sum by (clustername) (vsphere_host_cpu_usagemhz_average{${filterFragment(f, ['vcenter', 'clustername'])}})`,
   ramUsagePercent: (f: VsphereFilters) =>
-    `avg(vsphere_host_mem_usage_average{${filterFragment(f, ['vcenter', 'clustername'])}})`,
+    `avg by (clustername) (vsphere_host_mem_usage_average{${filterFragment(f, ['vcenter', 'clustername'])}})`,
 
   // Capacity headroom modeling: how busy the cluster is relative to losing
   // one of two redundant datacenters (RZ = Rechenzentrum), and relative to

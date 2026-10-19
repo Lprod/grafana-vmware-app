@@ -142,14 +142,14 @@ vsphere_vm_cpu_usage_average{vcenter="vc-demo-01.example.com",clustername="prod-
 
 # HELP vsphere_vm_cpu_idle_summation VM CPU idle time (used for label discovery).
 # TYPE vsphere_vm_cpu_idle_summation counter
-vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01",cpu="instance-total"} 53452
-vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01",cpu="instance-total"} 46252
-vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02",cpu="instance-total"} 67233
-vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02",cpu="instance-total"} 51600
-vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01",cpu="instance-total"} 48923
-vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01",cpu="instance-total"} 43440
-vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02",cpu="instance-total"} 88074
-vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02",cpu="instance-total"} 73936
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-01",cpu="instance-total",guest="ubuntu64Guest"} 53452
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx01.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-01",cpu="instance-total",guest="windows9Server64Guest"} 46252
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm01-02",cpu="instance-total",guest="ubuntu64Guest"} 67233
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-a",esxhostname="esx02.prod-cluster-a.example.com",vmname="prod-cluster-a-vm02-02",cpu="instance-total",guest="rhel9_64Guest"} 51600
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-01",cpu="instance-total",guest="windows9Server64Guest"} 48923
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx03.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-01",cpu="instance-total",guest="ubuntu64Guest"} 43440
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm01-02",cpu="instance-total",guest="rhel9_64Guest"} 88074
+vsphere_vm_cpu_idle_summation{vcenter="vc-demo-01.example.com",clustername="prod-cluster-b",esxhostname="esx04.prod-cluster-b.example.com",vmname="prod-cluster-b-vm02-02",cpu="instance-total",guest="ubuntu64Guest"} 73936
 
 # HELP vsphere_vm_mem_usage_average VM memory usage percentage.
 # TYPE vsphere_vm_mem_usage_average gauge

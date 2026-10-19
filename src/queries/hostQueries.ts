@@ -4,12 +4,29 @@
 import { filterFragment, VsphereFilters } from './queryHelpers';
 
 export const hostQueries = {
-  uptime: (f: VsphereFilters) => `vsphere_host_sys_uptime_latest{${filterFragment(f, ['esxhostname'])}}`,
+  // Wrapped in `avg by (esxhostname)` (rather than the bare metric
+  // selector) so the list page's table doesn't pick up every other label
+  // on the raw series (`__name__`, a duplicate `vcenter`/`clustername`
+  // already carried by the `info` query) as its own column.
+  uptime: (f: VsphereFilters) =>
+    `avg by (esxhostname) (vsphere_host_sys_uptime_latest{${filterFragment(f, ['esxhostname'])}})`,
   cpuUsageMhz: (f: VsphereFilters) => `vsphere_host_cpu_usagemhz_average{${filterFragment(f, ['esxhostname'])}}`,
   ramUsageBytes: (f: VsphereFilters) =>
     `vsphere_host_mem_totalCapacity_average{${filterFragment(f, ['esxhostname'])}} * vsphere_host_mem_usage_average{${filterFragment(f, ['esxhostname'])}} / 100 * 1024`,
-  cpuUsagePercent: (f: VsphereFilters) => `avg(vsphere_host_cpu_usage_average{${filterFragment(f, ['esxhostname'])}})`,
-  ramUsagePercent: (f: VsphereFilters) => `vsphere_host_mem_usage_average{${filterFragment(f, ['esxhostname'])}}`,
+  // `by (esxhostname)` so this still returns one row per host when `f`
+  // matches several (list-page `=~"$esxhostname"` usage) - without it, a
+  // multi-host selection collapsed into a single number with no
+  // `esxhostname` label left to join list-page columns on. `cpu`
+  // additionally filtered to `instance-total` - this metric also carries
+  // one row per individual core (`cpu="0"`, `"1"`, ...), which an
+  // unfiltered `avg` was blending in alongside the real total-CPU%
+  // reading.
+  cpuUsagePercent: (f: VsphereFilters) =>
+    `avg by (esxhostname) (vsphere_host_cpu_usage_average{${filterFragment(f, ['esxhostname'])}, cpu="instance-total"})`,
+  // Also wrapped (see `uptime` above) - the bare selector otherwise leaks
+  // `__name__`/`vcenter`/`clustername` as extra list-page table columns.
+  ramUsagePercent: (f: VsphereFilters) =>
+    `avg by (esxhostname) (vsphere_host_mem_usage_average{${filterFragment(f, ['esxhostname'])}})`,
 
   cpuUtilizationAvgPercentByCpu: (f: VsphereFilters) =>
     `avg by(cpu) (vsphere_host_cpu_usage_average{${filterFragment(f, ['esxhostname'])}})`,

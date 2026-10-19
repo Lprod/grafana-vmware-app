@@ -10,15 +10,23 @@ export const vmQueries = {
   // `guest`, the VM's guest OS name) - used to drive the identity stat
   // tiles (VCENTER/CLUSTERNAME/ESXHOSTNAME/VMNAME/OSNAME) ported from
   // /opt/vmware/vm.json's panel-15..19.
-  identityRow: (f: VsphereFilters) => `vsphere_vm_cpu_idle_summation{${filterFragment(f, ['vmname'])}, cpu="instance-total"}`,
+  identityRow: (f: VsphereFilters) =>
+    `vsphere_vm_cpu_idle_summation{${filterFragment(f, ['vmname'])}, cpu="instance-total"}`,
 
   uptime: (f: VsphereFilters) => `vsphere_vm_sys_uptime_latest{${filterFragment(f, ['vmname'])}}`,
   cpuUsageMhz: (f: VsphereFilters) => `avg(vsphere_vm_cpu_usagemhz_average{${filterFragment(f, ['vmname'])}})`,
   ramUsageActive: (f: VsphereFilters) => `avg(vsphere_vm_mem_active_average{${filterFragment(f, ['vmname'])}})`,
-  cpuUsagePercent: (f: VsphereFilters) => `avg(vsphere_vm_cpu_usage_average{${filterFragment(f, ['vmname'])}})`,
-  ramUsagePercent: (f: VsphereFilters) => `avg(vsphere_vm_mem_usage_average{${filterFragment(f, ['vmname'])}})`,
+  // `by (vmname)` so these still return one row per VM when `f` matches
+  // several (list-page `=~"$vmname"` usage) - without it, a multi-VM
+  // selection collapsed into a single number with no `vmname` label left to
+  // join list-page columns on.
+  cpuUsagePercent: (f: VsphereFilters) =>
+    `avg by (vmname) (vsphere_vm_cpu_usage_average{${filterFragment(f, ['vmname'])}})`,
+  ramUsagePercent: (f: VsphereFilters) =>
+    `avg by (vmname) (vsphere_vm_mem_usage_average{${filterFragment(f, ['vmname'])}})`,
 
-  cpuReadyPercent: (f: VsphereFilters) => `avg(vsphere_vm_cpu_readiness_average{${filterFragment(f, ['vmname'])}})`,
+  cpuReadyPercent: (f: VsphereFilters) =>
+    `avg by (vmname) (vsphere_vm_cpu_readiness_average{${filterFragment(f, ['vmname'])}})`,
   ramUtilizationPercent: (f: VsphereFilters) => `avg(vsphere_vm_mem_usage_average{${filterFragment(f, ['vmname'])}})`,
   cpuReadyMsByCore: (f: VsphereFilters) =>
     `avg by(cpu) (vsphere_vm_cpu_ready_summation{${filterFragment(f, ['vmname'])}})`,
